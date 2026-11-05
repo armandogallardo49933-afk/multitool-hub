@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MultiTool Hub - Utilidades Diarias Gratis</title>
-  <meta name="google-site-verification" content="googlef0f37d300252db63" />
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -24,9 +24,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts - Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Chart.js para gráficos de finanzas -->
+  <!-- Chart.js para gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- CDN Estable para Generación de Códigos QR -->
+  <!-- CDN Códigos QR -->
   <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 
   <style>
@@ -37,20 +37,52 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
-    .glow-card:hover {
-      border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
-    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300 relative overflow-x-hidden">
 
-  <!-- Luces de fondo decorativas -->
+  <!-- ================= MODAL / PANTALLA DE AUTENTICACIÓN (FIREBASE) ================= -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+    <div class="glow-card w-full max-w-md p-8 rounded-3xl border border-indigo-500/30 text-center shadow-2xl relative">
+      <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-tr from-indigo-500 to-purple-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+        <i class="fa-solid fa-bolt text-3xl"></i>
+      </div>
+      
+      <h2 id="authTitle" class="text-2xl font-black mb-1 bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">Iniciar Sesión</h2>
+      <p id="authSubtitle" class="text-xs text-slate-400 mb-6">Ingresa tu correo para acceder a MultiTool Hub</p>
+
+      <!-- Formulario -->
+      <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Correo Electrónico</label>
+          <input type="email" id="authEmail" required placeholder="tu@correo.com" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Contraseña</label>
+          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none">
+        </div>
+
+        <p id="authError" class="text-xs text-red-400 hidden"></p>
+
+        <button type="submit" id="authSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg shadow-indigo-600/30">
+          Entrar a la Plataforma
+        </button>
+      </form>
+
+      <!-- Alternar entre Login y Registro -->
+      <div class="mt-6 text-xs text-slate-400">
+        <span id="authToggleText">¿No tienes una cuenta?</span>
+        <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-indigo-400 font-bold ml-1 hover:underline">Regístrate gratis</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Luces decorativas -->
   <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
   <div class="absolute top-1/2 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- Contenedor Principal -->
-  <div class="max-w-4xl mx-auto px-4 py-8 relative z-10">
+  <!-- Contenedor Principal (Protegido) -->
+  <div id="mainApp" class="max-w-4xl mx-auto px-4 py-8 relative z-10 hidden">
     
     <!-- Cabecera -->
     <header class="flex flex-col sm:flex-row items-center justify-between glow-card p-6 rounded-2xl mb-6 gap-4">
@@ -60,17 +92,18 @@
         </div>
         <div>
           <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">MultiTool Hub</h1>
-          <p class="text-xs text-slate-400">Suite de herramientas digitales avanzadas</p>
+          <p class="text-xs text-slate-400">Sesión activa: <span id="userEmailDisplay" class="text-indigo-300 font-semibold"></span></p>
         </div>
       </div>
       
-      <!-- Botón Modo Oscuro / Claro -->
-      <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/50 hover:bg-slate-700 transition text-yellow-400">
-        <i id="themeIcon" class="fa-solid fa-sun text-lg"></i>
-      </button>
+      <div class="flex items-center space-x-2">
+        <button onclick="logoutFirebase()" title="Cerrar Sesión" class="p-2.5 rounded-xl bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 transition text-red-300 text-xs font-semibold">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Salir
+        </button>
+      </div>
     </header>
 
-    <!-- Navegación por Pestañas (Tabs) -->
+    <!-- Navegación por Pestañas -->
     <nav class="flex overflow-x-auto space-x-2 glow-card p-2 rounded-2xl mb-8 scrollbar-none">
       <button onclick="switchTab('inicio')" id="btn-inicio" class="tab-btn flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition whitespace-nowrap bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25">
         <i class="fa-solid fa-house"></i> <span>Inicio</span>
@@ -92,291 +125,260 @@
       </button>
     </nav>
 
-    <!-- ================= SECCIÓN 1: INICIO (LANDING PAGE RE-DISEÑADA) ================= -->
+    <!-- SECCIÓN 1: INICIO -->
     <section id="tab-inicio" class="tab-content space-y-6">
       <div class="relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-indigo-900/60 via-slate-900 to-purple-900/60 border border-indigo-500/30 shadow-2xl">
         <div class="relative z-10">
-          <span class="inline-block px-3 py-1 bg-indigo-500/20 border border-indigo-400/30 rounded-full text-xs font-semibold text-indigo-300 mb-3">Plataforma Todo en Uno</span>
-          <h2 class="text-3xl sm:text-4xl font-black mb-3 text-white tracking-tight">Soluciones inmediatas en tu navegador 🚀</h2>
+          <span class="inline-block px-3 py-1 bg-indigo-500/20 border border-indigo-400/30 rounded-full text-xs font-semibold text-indigo-300 mb-3">Plataforma Protegida</span>
+          <h2 class="text-3xl sm:text-4xl font-black mb-3 text-white tracking-tight">Bienvenido a tu Suite Digital 🚀</h2>
           <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Explora nuestra colección de utilidades web optimizadas para el día a día. Sin instalaciones, sin registros y totalmente gratuito.
+            Has iniciado sesión correctamente. Explora todas tus utilidades web favoritas desde el menú superior.
           </p>
         </div>
       </div>
 
-      <!-- Tarjetas Informativas (Sin Botones Innecesarios) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div class="glow-card p-6 rounded-2xl transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mb-4">
-            <i class="fa-solid fa-graduation-cap"></i>
-          </div>
+        <div class="glow-card p-6 rounded-2xl">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mb-4"><i class="fa-solid fa-graduation-cap"></i></div>
           <h3 class="text-lg font-bold text-white mb-2">Estudios & Asistente Matemático</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Generador automático de fichas bibliográficas en formato **APA 7.ª Edición** y calculador/resolvedor de expresiones matemáticas y ecuaciones en segundos.
-          </p>
+          <p class="text-sm text-slate-400">Generador APA 7.ª edición y resolutor de expresiones matemáticas paso a paso.</p>
         </div>
-
-        <div class="glow-card p-6 rounded-2xl transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-4">
-            <i class="fa-solid fa-qrcode"></i>
-          </div>
+        <div class="glow-card p-6 rounded-2xl">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-4"><i class="fa-solid fa-qrcode"></i></div>
           <h3 class="text-lg font-bold text-white mb-2">Procesador de Texto & QR</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Contador en tiempo real de palabras, caracteres y tiempo de lectura. Incluye generador de **códigos QR con descarga PNG** directa a tu equipo.
-          </p>
+          <p class="text-sm text-slate-400">Contador de palabras, tiempo de lectura y generador de código QR en alta calidad.</p>
         </div>
-
-        <div class="glow-card p-6 rounded-2xl transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mb-4">
-            <i class="fa-solid fa-chart-pie"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Finanzas Personales (50/30/20)</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Calculadora inteligente de presupuestos basada en la regla financiera 50/30/20 con gráficos de dona interactivos integrados.
-          </p>
-        </div>
-
-        <div class="glow-card p-6 rounded-2xl transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl mb-4">
-            <i class="fa-solid fa-gas-pump"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Cálculo de Gasolina & Auto</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Proyección del costo de combustible para trayectos en coche con desglose equitativo de costos por número de pasajeros.
-          </p>
-        </div>
-
       </div>
     </section>
 
-    <!-- ================= SECCIÓN: ESTUDIOS & MATES ================= -->
+    <!-- SECCIÓN: ESTUDIOS & MATES -->
     <section id="tab-estudios" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Generador APA -->
         <div class="glow-card p-6 rounded-2xl flex flex-col justify-between">
           <div>
-            <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-indigo-400">
-              <i class="fa-solid fa-book"></i> <span>Generador APA 7.ª Edición</span>
-            </h2>
+            <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-indigo-400"><i class="fa-solid fa-book"></i> <span>Generador APA 7.ª Edición</span></h2>
             <div class="space-y-3 text-sm">
-              <input type="text" id="apaAuthor" placeholder="Autor (Ej: Gallardo, A.)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none">
-              <input type="text" id="apaYear" placeholder="Año de publicación (Ej: 2026)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none">
-              <input type="text" id="apaTitle" placeholder="Título del artículo o página" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none">
-              <input type="text" id="apaSite" placeholder="Nombre del sitio web" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none">
-              <input type="text" id="apaUrl" placeholder="URL (https://...)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none">
+              <input type="text" id="apaAuthor" placeholder="Autor (Ej: Gallardo, A.)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+              <input type="text" id="apaYear" placeholder="Año (Ej: 2026)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+              <input type="text" id="apaTitle" placeholder="Título del artículo" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+              <input type="text" id="apaSite" placeholder="Nombre del sitio web" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+              <input type="text" id="apaUrl" placeholder="URL (https://...)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
             </div>
-            <button onclick="generateAPA()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mt-4 shadow-lg shadow-indigo-600/30">Generar Cita APA</button>
+            <button onclick="generateAPA()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mt-4">Generar Cita APA</button>
           </div>
-
           <div id="apaResultContainer" class="hidden mt-4 bg-slate-900 p-4 rounded-xl border border-indigo-500/30">
-            <p class="text-xs text-indigo-300 font-semibold mb-1">Cita generada:</p>
             <p id="apaOutput" class="text-xs text-slate-200 font-mono italic break-words mb-3"></p>
-            <button onclick="copyAPA()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2 rounded-xl transition">
-              <i class="fa-solid fa-copy mr-1"></i> Copiar Ficha APA
-            </button>
+            <button onclick="copyAPA()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2 rounded-xl">Copiar Cita</button>
           </div>
         </div>
 
-        <!-- Resolutor Matemático -->
         <div class="glow-card p-6 rounded-2xl flex flex-col justify-between">
           <div>
-            <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-indigo-400">
-              <i class="fa-solid fa-calculator"></i> <span>Asistente Matemático</span>
-            </h2>
-            <p class="text-xs text-slate-400 mb-3">Expresiones soportadas: <b>(45 * 12) / 3</b>, <b>2^8</b> o <b>Math.sqrt(144)</b></p>
-            <input type="text" id="mathInput" placeholder="Ej. 250 * 0.16  o  (100 - 15) / 2" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-indigo-500 focus:outline-none text-sm mb-3">
-            <button onclick="solveMath()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-4 shadow-lg shadow-indigo-600/30">Resolver Operación</button>
-            
-            <div class="grid grid-cols-3 gap-2 mb-4">
-              <button onclick="quickMath('percentage')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold p-2 rounded-xl">Sacar %</button>
-              <button onclick="quickMath('square')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold p-2 rounded-xl">Raíz 2</button>
-              <button onclick="quickMath('rule3')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold p-2 rounded-xl">Regla de 3</button>
-            </div>
+            <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-indigo-400"><i class="fa-solid fa-calculator"></i> <span>Asistente Matemático</span></h2>
+            <input type="text" id="mathInput" placeholder="Ej. 250 * 0.16 o (100 - 15) / 2" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3">
+            <button onclick="solveMath()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-4">Resolver Operación</button>
           </div>
-
           <div id="mathResultContainer" class="hidden bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
             <span class="text-xs text-slate-400">Resultado:</span>
             <p id="mathOutput" class="text-2xl font-bold text-indigo-400 mt-1">0</p>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- ================= SECCIÓN: TEXTO & QR ================= -->
+    <!-- SECCIÓN: TEXTO & QR -->
     <section id="tab-texto" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="glow-card p-6 rounded-2xl">
-          <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-cyan-400">
-            <i class="fa-solid fa-file-pen"></i> <span>Procesador de Texto</span>
-          </h2>
-          <textarea id="textInput" rows="5" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-cyan-500 focus:outline-none text-sm mb-3" placeholder="Escribe o pega tu texto aquí..."></textarea>
-          
+          <h2 class="text-lg font-bold mb-3 text-cyan-400"><i class="fa-solid fa-file-pen mr-2"></i>Procesador de Texto</h2>
+          <textarea id="textInput" rows="5" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3" placeholder="Escribe aquí..."></textarea>
           <div class="grid grid-cols-4 gap-2 text-center mb-4">
             <div class="bg-slate-800/80 p-2 rounded-xl"><span class="block text-xs text-slate-400">Palabras</span><b id="wordCount" class="text-sm">0</b></div>
             <div class="bg-slate-800/80 p-2 rounded-xl"><span class="block text-xs text-slate-400">Caracteres</span><b id="charCount" class="text-sm">0</b></div>
             <div class="bg-slate-800/80 p-2 rounded-xl"><span class="block text-xs text-slate-400">Líneas</span><b id="lineCount" class="text-sm">0</b></div>
             <div class="bg-slate-800/80 p-2 rounded-xl"><span class="block text-xs text-slate-400">Lectura</span><b id="readTime" class="text-sm">0m</b></div>
           </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button onclick="transformText('upper')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2 px-3 rounded-xl text-xs font-semibold transition">MAYÚSCULAS</button>
-            <button onclick="transformText('lower')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2 px-3 rounded-xl text-xs font-semibold transition">minúsculas</button>
-            <button onclick="copyText()" class="bg-cyan-600 hover:bg-cyan-500 text-white py-2 px-4 rounded-xl text-xs font-semibold transition"><i class="fa-solid fa-copy"></i></button>
-          </div>
         </div>
 
         <div class="glow-card p-6 rounded-2xl flex flex-col justify-between">
           <div>
-            <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-cyan-400">
-              <i class="fa-solid fa-qrcode"></i> <span>Generador de QR</span>
-            </h2>
-            <input type="text" id="qrInput" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-cyan-500 focus:outline-none text-sm mb-3" placeholder="Pega una URL o texto...">
-            <button onclick="generateQR()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-4 shadow-lg shadow-cyan-600/30">Generar Código QR</button>
+            <h2 class="text-lg font-bold mb-3 text-cyan-400"><i class="fa-solid fa-qrcode mr-2"></i>Generador QR</h2>
+            <input type="text" id="qrInput" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3" placeholder="Pega un enlace...">
+            <button onclick="generateQR()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-4">Generar QR</button>
           </div>
-          
           <div class="flex flex-col items-center justify-center bg-slate-900 p-4 rounded-xl border border-dashed border-slate-700">
-            <div id="qrcode" class="mb-3 flex justify-center bg-white p-2 rounded-lg"></div>
-            <button id="downloadQRBtn" onclick="downloadQR()" style="display:none;" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold py-2 px-4 rounded-xl transition">
-              <i class="fa-solid fa-download mr-1"></i> Descargar QR en PNG
-            </button>
+            <div id="qrcode" class="mb-3 bg-white p-2 rounded-lg"></div>
+            <button id="downloadQRBtn" onclick="downloadQR()" style="display:none;" class="bg-emerald-600 text-white text-xs font-semibold py-2 px-4 rounded-xl">Descargar PNG</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= SECCIÓN: FINANZAS ================= -->
+    <!-- SECCIÓN: FINANZAS -->
     <section id="tab-finanzas" class="tab-content hidden space-y-6">
       <div class="glow-card p-6 rounded-2xl">
-        <h2 class="text-lg font-bold mb-2 flex items-center space-x-2 text-emerald-400">
-          <i class="fa-solid fa-chart-pie"></i> <span>Calculadora de Presupuesto (Regla 50/30/20)</span>
-        </h2>
-        <p class="text-sm text-slate-400 mb-4">Ingresa tus ingresos mensuales netos:</p>
-        
+        <h2 class="text-lg font-bold mb-2 text-emerald-400"><i class="fa-solid fa-chart-pie mr-2"></i>Calculadora Presupuesto (50/30/20)</h2>
         <div class="flex gap-3 mb-6">
-          <input type="number" id="incomeInput" placeholder="Ej. 10000" class="flex-1 p-3 rounded-xl border border-slate-700 bg-slate-900/80 focus:border-emerald-500 focus:outline-none text-sm">
-          <button onclick="calculateBudget()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 rounded-xl transition text-sm shadow-lg shadow-emerald-600/30">Calcular</button>
+          <input type="number" id="incomeInput" placeholder="Ingreso mensual ($)" class="flex-1 p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+          <button onclick="calculateBudget()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 rounded-xl text-sm">Calcular</button>
         </div>
-
         <div id="budgetResults" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div class="space-y-3">
-            <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
-              <span class="text-xs text-emerald-400 font-semibold">NECESIDADES (50%)</span>
-              <p class="text-xl font-bold text-emerald-200">$<span id="needsVal">0</span></p>
-            </div>
-            <div class="p-4 rounded-xl bg-blue-950/40 border border-blue-500/30">
-              <span class="text-xs text-blue-400 font-semibold">GUSTOS / DESEOS (30%)</span>
-              <p class="text-xl font-bold text-blue-200">$<span id="wantsVal">0</span></p>
-            </div>
-            <div class="p-4 rounded-xl bg-amber-950/40 border border-amber-500/30">
-              <span class="text-xs text-amber-400 font-semibold">AHORRO / INVERSIÓN (20%)</span>
-              <p class="text-xl font-bold text-amber-200">$<span id="savingsVal">0</span></p>
-            </div>
+            <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30"><span class="text-xs text-emerald-400 font-semibold">NECESIDADES (50%)</span><p class="text-xl font-bold text-emerald-200">$<span id="needsVal">0</span></p></div>
+            <div class="p-4 rounded-xl bg-blue-950/40 border border-blue-500/30"><span class="text-xs text-blue-400 font-semibold">GUSTOS (30%)</span><p class="text-xl font-bold text-blue-200">$<span id="wantsVal">0</span></p></div>
+            <div class="p-4 rounded-xl bg-amber-950/40 border border-amber-500/30"><span class="text-xs text-amber-400 font-semibold">AHORRO (20%)</span><p class="text-xl font-bold text-amber-200">$<span id="savingsVal">0</span></p></div>
           </div>
-          
-          <div class="flex justify-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
-            <div class="w-64 h-64">
-              <canvas id="budgetChart"></canvas>
-            </div>
-          </div>
+          <div class="flex justify-center bg-slate-900 p-4 rounded-2xl"><div class="w-64 h-64"><canvas id="budgetChart"></canvas></div></div>
         </div>
       </div>
     </section>
 
-    <!-- ================= SECCIÓN: GASOLINA ================= -->
+    <!-- SECCIÓN: GASOLINA -->
     <section id="tab-auto" class="tab-content hidden space-y-6">
       <div class="glow-card p-6 rounded-2xl">
-        <h2 class="text-lg font-bold mb-2 flex items-center space-x-2 text-amber-400">
-          <i class="fa-solid fa-gas-pump"></i> <span>Calculadora de Gastos de Viaje y Gasolina</span>
-        </h2>
+        <h2 class="text-lg font-bold mb-2 text-amber-400"><i class="fa-solid fa-gas-pump mr-2"></i>Calculadora de Gasolina</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 mt-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Distancia del viaje (KM)</label>
-            <input type="number" id="tripKm" placeholder="Ej. 120" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Rendimiento (KM por Litro)</label>
-            <input type="number" id="carKmPL" placeholder="Ej. 12" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Precio por Litro ($)</label>
-            <input type="number" id="fuelPrice" placeholder="Ej. 24.50" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Pasajeros</label>
-            <input type="number" id="passengers" value="1" min="1" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm">
-          </div>
+          <input type="number" id="tripKm" placeholder="Distancia (KM)" class="p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+          <input type="number" id="carKmPL" placeholder="Rendimiento (KM/L)" class="p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+          <input type="number" id="fuelPrice" placeholder="Precio/Litro ($)" class="p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+          <input type="number" id="passengers" value="1" placeholder="Pasajeros" class="p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm">
         </div>
-
-        <button onclick="calculateTrip()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-6 shadow-lg shadow-amber-600/30">Calcular Viaje</button>
-
+        <button onclick="calculateTrip()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 rounded-xl text-sm mb-6">Calcular Viaje</button>
         <div id="tripResult" class="hidden bg-slate-900 p-4 rounded-xl border border-amber-500/30 text-center">
-          <p class="text-sm text-slate-300">Costo Total del Trayecto: <b id="totalTripCost" class="text-lg text-amber-400">$0.00</b></p>
-          <p class="text-sm text-white font-bold mt-1">Costo por Persona: <span id="costPerPerson" class="text-xl text-amber-400">$0.00</span></p>
+          <p class="text-sm text-slate-300">Costo Total: <b id="totalTripCost" class="text-lg text-amber-400">$0.00</b></p>
+          <p class="text-sm text-white font-bold mt-1">Por Persona: <span id="costPerPerson" class="text-xl text-amber-400">$0.00</span></p>
         </div>
       </div>
     </section>
 
-    <!-- ================= SECCIÓN: WHATSAPP & IVA ================= -->
+    <!-- SECCIÓN: WHATSAPP & IVA -->
     <section id="tab-utilidades" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="glow-card p-6 rounded-2xl">
-          <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-purple-400">
-            <i class="fa-brands fa-whatsapp"></i> <span>Enlace Directo WhatsApp</span>
-          </h2>
-          <input type="text" id="waPhone" placeholder="Número con país (ej. 521...)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm mb-3">
-          <textarea id="waMsg" rows="3" placeholder="Mensaje predeterminado..." class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm mb-3"></textarea>
-          <button onclick="generateWA()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl transition text-sm shadow-lg shadow-purple-600/30">Generar Enlace</button>
+          <h2 class="text-lg font-bold mb-3 text-purple-400"><i class="fa-brands fa-whatsapp mr-2"></i>WhatsApp Directo</h2>
+          <input type="text" id="waPhone" placeholder="Número (ej. 521...)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3">
+          <textarea id="waMsg" rows="2" placeholder="Mensaje..." class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3"></textarea>
+          <button onclick="generateWA()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-sm">Generar Link</button>
           <div id="waResultContainer" class="hidden mt-3">
-            <input type="text" id="waLinkOutput" readonly class="w-full p-2.5 bg-slate-900 rounded-xl text-xs text-slate-400 mb-2 border border-slate-800">
-            <a id="waOpenBtn" href="#" target="_blank" class="block text-center bg-slate-800 text-white text-xs font-semibold py-2 rounded-xl transition hover:bg-slate-700">Probar Chat</a>
+            <input type="text" id="waLinkOutput" readonly class="w-full p-2 bg-slate-900 rounded-xl text-xs text-slate-400 mb-2">
+            <a id="waOpenBtn" href="#" target="_blank" class="block text-center bg-slate-800 text-white text-xs font-semibold py-2 rounded-xl">Probar Chat</a>
           </div>
         </div>
 
         <div class="glow-card p-6 rounded-2xl">
-          <h2 class="text-lg font-bold mb-3 flex items-center space-x-2 text-purple-400">
-            <i class="fa-solid fa-calculator"></i> <span>Calculadora de IVA</span>
-          </h2>
-          <input type="number" id="ivaAmount" placeholder="Monto base ($)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900/80 text-sm mb-3">
+          <h2 class="text-lg font-bold mb-3 text-purple-400"><i class="fa-solid fa-calculator mr-2"></i>Calculadora IVA</h2>
+          <input type="number" id="ivaAmount" placeholder="Monto base ($)" class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 text-sm mb-3">
           <div class="grid grid-cols-2 gap-2 mb-4">
-            <button onclick="calculateIVA('add')" class="bg-purple-600 hover:bg-purple-500 text-white py-2 px-3 rounded-xl text-xs font-semibold transition">Agregar IVA (16%)</button>
-            <button onclick="calculateIVA('extract')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2 px-3 rounded-xl text-xs font-semibold transition">Desglosar IVA</button>
+            <button onclick="calculateIVA('add')" class="bg-purple-600 hover:bg-purple-500 text-white py-2 text-xs font-semibold rounded-xl">Agregar 16%</button>
+            <button onclick="calculateIVA('extract')" class="bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl">Desglosar IVA</button>
           </div>
-          <div id="ivaResult" class="hidden bg-slate-900 p-4 rounded-xl border border-purple-500/30 text-center">
-            <p class="text-xs text-purple-300 font-semibold">Resultado:</p>
-            <p class="text-lg font-bold text-white mt-1" id="ivaOutputText">$0.00</p>
+          <div id="ivaResult" class="hidden bg-slate-900 p-4 rounded-xl text-center">
+            <p id="ivaOutputText" class="text-lg font-bold text-white">$0.00</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Pie de página -->
-    <footer class="text-center text-xs text-slate-500 mt-12 py-4 border-t border-slate-800/60">
-      MultiTool Hub &copy; 2026 - Creado para el desarrollo web independiente.
+    <footer class="text-center text-xs text-slate-500 mt-12 py-4 border-t border-slate-800">
+      MultiTool Hub &copy; 2026 - Protegido por Firebase Auth
     </footer>
   </div>
 
+  <!-- ================= LÓGICA JAVASCRIPT CON FIREBASE ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      onAuthStateChanged, 
+      signOut 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // Configuración real de tu proyecto de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLTZrlkSKq3gIcJcBYL8aPE0xaABaiqlg",
+      authDomain: "multitool-hub-e382e.firebaseapp.com",
+      projectId: "multitool-hub-e382e",
+      storageBucket: "multitool-hub-e382e.firebasestorage.app",
+      messagingSenderId: "1015578575975",
+      appId: "1:1015578575975:web:ab38e3119921c283aec0c2",
+      measurementId: "G-J6M2K8M5GS"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let isSignUpMode = false;
+
+    // Cambiar entre Iniciar Sesión y Registro
+    window.toggleAuthMode = function() {
+      isSignUpMode = !isSignUpMode;
+      document.getElementById('authTitle').innerText = isSignUpMode ? "Crear Cuenta" : "Iniciar Sesión";
+      document.getElementById('authSubtitle').innerText = isSignUpMode ? "Regístrate para usar todas las herramientas" : "Ingresa tu correo para acceder a MultiTool Hub";
+      document.getElementById('authSubmitBtn').innerText = isSignUpMode ? "Registrarse Gratis" : "Entrar a la Plataforma";
+      document.getElementById('authToggleText').innerText = isSignUpMode ? "¿Ya tienes una cuenta?" : "¿No tienes una cuenta?";
+      document.getElementById('authToggleBtn').innerText = isSignUpMode ? "Inicia Sesión" : "Regístrate gratis";
+      document.getElementById('authError').classList.add('hidden');
+    }
+
+    // Manejar envío del formulario (Login / Sign Up)
+    window.handleAuth = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const errorEl = document.getElementById('authError');
+      errorEl.classList.add('hidden');
+
+      try {
+        if (isSignUpMode) {
+          await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) {
+        errorEl.innerText = "Error: " + err.message.replace("Firebase: ", "");
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    // Escuchar cambios de estado de autenticación
+    onAuthStateChanged(auth, (user) => {
+      const modal = document.getElementById('authModal');
+      const mainApp = document.getElementById('mainApp');
+
+      if (user) {
+        modal.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        document.getElementById('userEmailDisplay').innerText = user.email;
+      } else {
+        modal.classList.remove('hidden');
+        mainApp.classList.add('hidden');
+      }
+    });
+
+    // Cerrar sesión
+    window.logoutFirebase = function() {
+      signOut(auth);
+    }
+  </script>
+
+  <!-- Funciones generales de la app -->
   <script>
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'text-white', 'shadow-lg', 'shadow-indigo-500/25');
-        el.classList.add('text-slate-300', 'hover:bg-slate-800/60');
+        el.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'text-white', 'shadow-lg');
+        el.classList.add('text-slate-300');
       });
 
       document.getElementById('tab-' + tabId).classList.remove('hidden');
       const activeBtn = document.getElementById('btn-' + tabId);
       if(activeBtn) {
-        activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800/60');
-        activeBtn.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'text-white', 'shadow-lg', 'shadow-indigo-500/25');
+        activeBtn.classList.remove('text-slate-300');
+        activeBtn.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'text-white', 'shadow-lg');
       }
-    }
-
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      html.classList.toggle('dark');
     }
 
     function generateAPA() {
@@ -385,73 +387,42 @@
       const title = document.getElementById('apaTitle').value.trim() || 'Sin título';
       const site = document.getElementById('apaSite').value.trim() || 'Sitio Web';
       const url = document.getElementById('apaUrl').value.trim() || '#';
-
-      const citation = `${author} (${year}). ${title}. ${site}. ${url}`;
-      document.getElementById('apaOutput').innerText = citation;
+      document.getElementById('apaOutput').innerText = `${author} (${year}). ${title}. ${site}. ${url}`;
       document.getElementById('apaResultContainer').classList.remove('hidden');
     }
 
     function copyAPA() {
-      const text = document.getElementById('apaOutput').innerText;
-      navigator.clipboard.writeText(text);
-      alert('¡Ficha APA copiada!');
+      navigator.clipboard.writeText(document.getElementById('apaOutput').innerText);
+      alert('¡Cita copiada!');
     }
 
     function solveMath() {
       const input = document.getElementById('mathInput').value.trim();
-      const container = document.getElementById('mathResultContainer');
-      const output = document.getElementById('mathOutput');
       if (!input) return alert('Ingresa una operación.');
-
       try {
-        const formatted = input.replace(/\^/g, '**');
-        const result = Function(`'use strict'; return (${formatted})`)();
-        output.innerText = typeof result === 'number' ? Number(result.toFixed(4)) : result;
-        container.classList.remove('hidden');
-      } catch (err) {
-        alert('Expresión no válida.');
-      }
-    }
-
-    function quickMath(type) {
-      const input = document.getElementById('mathInput');
-      if (type === 'percentage') input.value = '250 * 0.15';
-      if (type === 'square') input.value = 'Math.sqrt(144)';
-      if (type === 'rule3') input.value = '(100 * 50) / 20';
+        const result = Function(`'use strict'; return (${input.replace(/\^/g, '**')})`)();
+        document.getElementById('mathOutput').innerText = typeof result === 'number' ? Number(result.toFixed(4)) : result;
+        document.getElementById('mathResultContainer').classList.remove('hidden');
+      } catch (err) { alert('Expresión no válida.'); }
     }
 
     const textInput = document.getElementById('textInput');
-    textInput.addEventListener('input', () => {
+    textInput?.addEventListener('input', () => {
       const val = textInput.value;
       document.getElementById('charCount').innerText = val.length;
       const words = val.trim() ? val.trim().split(/\s+/).length : 0;
       document.getElementById('wordCount').innerText = words;
-      const lines = val ? val.split('\n').length : 0;
-      document.getElementById('lineCount').innerText = lines;
+      document.getElementById('lineCount').innerText = val ? val.split('\n').length : 0;
       document.getElementById('readTime').innerText = Math.ceil(words / 200) + 'm';
     });
 
-    function transformText(type) {
-      if (type === 'upper') textInput.value = textInput.value.toUpperCase();
-      if (type === 'lower') textInput.value = textInput.value.toLowerCase();
-      textInput.dispatchEvent(new Event('input'));
-    }
-
-    function copyText() {
-      navigator.clipboard.writeText(textInput.value);
-      alert('¡Texto copiado!');
-    }
-
-    let qrcodeObj = null;
     function generateQR() {
       const text = document.getElementById('qrInput').value.trim();
       const container = document.getElementById('qrcode');
       container.innerHTML = "";
       if (text) {
-        qrcodeObj = new QRCode(container, { text: text, width: 150, height: 150 });
+        new QRCode(container, { text: text, width: 140, height: 140 });
         document.getElementById('downloadQRBtn').style.display = 'inline-block';
-      } else {
-        alert('Ingresa un texto o enlace.');
       }
     }
 
@@ -468,27 +439,20 @@
     let budgetChart = null;
     function calculateBudget() {
       const income = parseFloat(document.getElementById('incomeInput').value);
-      if (isNaN(income) || income <= 0) return alert('Ingresa un monto válido.');
-
+      if (isNaN(income) || income <= 0) return;
       const needs = (income * 0.50).toFixed(2);
       const wants = (income * 0.30).toFixed(2);
       const savings = (income * 0.20).toFixed(2);
-
       document.getElementById('needsVal').innerText = needs;
       document.getElementById('wantsVal').innerText = wants;
       document.getElementById('savingsVal').innerText = savings;
       document.getElementById('budgetResults').classList.remove('hidden');
-
       const ctx = document.getElementById('budgetChart').getContext('2d');
       if (budgetChart) budgetChart.destroy();
-
       budgetChart = new Chart(ctx, {
         type: 'doughnut',
-        data: {
-          labels: ['Necesidades (50%)', 'Gustos (30%)', 'Ahorro (20%)'],
-          datasets: [{ data: [needs, wants, savings], backgroundColor: ['#10b981', '#6366f1', '#f59e0b'] }]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', boxWidth: 12 } } } }
+        data: { labels: ['Necesidades (50%)', 'Gustos (30%)', 'Ahorro (20%)'], datasets: [{ data: [needs, wants, savings], backgroundColor: ['#10b981', '#6366f1', '#f59e0b'] }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } } }
       });
     }
 
@@ -497,22 +461,17 @@
       const kmpl = parseFloat(document.getElementById('carKmPL').value);
       const price = parseFloat(document.getElementById('fuelPrice').value);
       const pax = parseInt(document.getElementById('passengers').value) || 1;
-
-      if (isNaN(km) || isNaN(kmpl) || kmpl <= 0) return alert('Campos incompletos.');
-
+      if (isNaN(km) || isNaN(kmpl) || kmpl <= 0) return;
       const totalCost = (km / kmpl) * price;
-      const perPerson = totalCost / pax;
-
       document.getElementById('totalTripCost').innerText = '$' + totalCost.toFixed(2);
-      document.getElementById('costPerPerson').innerText = '$' + perPerson.toFixed(2);
+      document.getElementById('costPerPerson').innerText = '$' + (totalCost / pax).toFixed(2);
       document.getElementById('tripResult').classList.remove('hidden');
     }
 
     function generateWA() {
       const phone = document.getElementById('waPhone').value.trim();
       const msg = encodeURIComponent(document.getElementById('waMsg').value.trim());
-      if (!phone) return alert('Ingresa un número.');
-
+      if (!phone) return;
       const link = `https://wa.me/${phone}?text=${msg}`;
       document.getElementById('waLinkOutput').value = link;
       document.getElementById('waOpenBtn').href = link;
@@ -521,19 +480,10 @@
 
     function calculateIVA(type) {
       const amount = parseFloat(document.getElementById('ivaAmount').value);
-      if (isNaN(amount) || amount <= 0) return alert('Ingresa un monto.');
-
-      let resText = '';
-      if (type === 'add') {
-        const total = amount * 1.16;
-        const iva = amount * 0.16;
-        resText = `Total con IVA: $${total.toFixed(2)} (IVA: $${iva.toFixed(2)})`;
-      } else {
-        const base = amount / 1.16;
-        const iva = amount - base;
-        resText = `Base sin IVA: $${base.toFixed(2)} (IVA: $${iva.toFixed(2)})`;
-      }
-
+      if (isNaN(amount) || amount <= 0) return;
+      const resText = type === 'add' 
+        ? `Total con IVA: $${(amount * 1.16).toFixed(2)} (IVA: $${(amount * 0.16).toFixed(2)})`
+        : `Base sin IVA: $${(amount / 1.16).toFixed(2)} (IVA: $${(amount - (amount / 1.16)).toFixed(2)})`;
       document.getElementById('ivaOutputText').innerText = resText;
       document.getElementById('ivaResult').classList.remove('hidden');
     }
