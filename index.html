@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MultiTool Hub - Utilidades Diarias Gratis</title>
+
+  <!-- Tailwind CSS CDN para diseño moderno y responsive -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts - Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js para gráficos de finanzas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- CDN Estable para Generación de Códigos QR -->
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos personalizados y utilidades de animaciones */
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Ocultar canvas de QR por defecto si no hay contenido */
+    #qrcode img, #qrcode canvas {
+      margin: 0 auto;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      background: white;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Toast de Notificaciones -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 dark:border-slate-300 pointer-events-none">
+    <i id="toastIcon" class="fas fa-check-circle text-emerald-400 dark:text-emerald-600"></i>
+    <span id="toastMsg" class="text-sm font-medium">Notificación</span>
+  </div>
+
+  <!-- Navbar Principal -->
+  <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+          <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-lg shadow-brand-500/30 flex items-center justify-center">
+            <i class="fas fa-cubes text-xl"></i>
+          </div>
+          <div>
+            <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">MultiTool</span>
+            <span class="text-xs uppercase tracking-wider font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2 py-0.5 rounded-full ml-1.5">Hub</span>
+          </div>
+        </div>
+
+        <!-- Acciones del Header -->
+        <div class="flex items-center gap-2">
+          <!-- Botón de Modo Oscuro/Claro -->
+          <button id="themeToggle" onclick="toggleDarkMode()" aria-label="Cambiar tema" class="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none transition-colors">
+            <i id="themeIcon" class="fas fa-moon text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navegación por Pestañas (Tabs Responsive) -->
+      <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto no-scrollbar py-2 border-t border-slate-100 dark:border-slate-700/50">
+        <button onclick="switchTab('tab-text-qr')" id="btn-tab-text-qr" class="tab-btn active flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition-all text-brand-600 bg-brand-50 dark:bg-brand-950/50 dark:text-brand-400 border border-brand-200 dark:border-brand-800/50">
+          <i class="fas fa-file-alt"></i>
+          <span>Texto & QR</span>
+        </button>
+
+        <button onclick="switchTab('tab-finance')" id="btn-tab-finance" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i class="fas fa-chart-pie"></i>
+          <span>Finanzas 50/30/20</span>
+        </button>
+
+        <button onclick="switchTab('tab-fuel')" id="btn-tab-fuel" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i class="fas fa-gas-pump"></i>
+          <span>Gastos de Auto</span>
+        </button>
+
+        <button onclick="switchTab('tab-wa-tax')" id="btn-tab-wa-tax" class="tab-btn flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i class="fas fa-calculator"></i>
+          <span>WhatsApp & Impuestos</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- PESTAÑA 1: TEXTO & QR -->
+    <div id="tab-text-qr" class="tab-content active">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Editor de Texto & Transformador -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold flex items-center gap-2">
+                <i class="fas fa-pen-to-square text-brand-500"></i>
+                Procesador de Texto
+              </h2>
+              <button onclick="copyToClipboard(document.getElementById('textInput').value)" class="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+                <i class="fas fa-copy"></i> Copiar Todo
+              </button>
+            </div>
+
+            <!-- Área de Texto -->
+            <textarea id="textInput" rows="7" placeholder="Escribe o pega tu texto aquí para analizarlo y convertirlo..." class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-brand-500 focus:outline-none transition text-sm resize-y mb-4"></textarea>
+
+            <!-- Estadísticas en tiempo real -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <span class="block text-xs text-slate-500 dark:text-slate-400">Palabras</span>
+                <span id="statWords" class="text-xl font-bold text-slate-800 dark:text-slate-100">0</span>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <span class="block text-xs text-slate-500 dark:text-slate-400">Caracteres</span>
+                <span id="statChars" class="text-xl font-bold text-slate-800 dark:text-slate-100">0</span>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <span class="block text-xs text-slate-500 dark:text-slate-400">Líneas</span>
+                <span id="statLines" class="text-xl font-bold text-slate-800 dark:text-slate-100">0</span>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <span class="block text-xs text-slate-500 dark:text-slate-400">Lectura</span>
+                <span id="statReadingTime" class="text-xl font-bold text-slate-800 dark:text-slate-100">0 min</span>
+              </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex flex-wrap gap-2">
+              <button onclick="transformText('upper')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">MAYÚSCULAS</button>
+              <button onclick="transformText('lower')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">minúsculas</button>
+              <button onclick="transformText('title')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">Tipo Título</button>
+              <button onclick="transformText('clean')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">Limpiar Espacios</button>
+              <button onclick="transformText('clear')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 hover:bg-red-100 transition ml-auto">Vaciar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generador de QR -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between min-h-full">
+            <div>
+              <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+                <i class="fas fa-qrcode text-brand-500"></i>
+                Generador de Código QR
+              </h2>
+              
+              <div class="space-y-4 mb-6">
+                <div>
+                  <label for="qrInput" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">URL o Texto para el QR</label>
+                  <input type="text" id="qrInput" placeholder="https://tu-sitio-web.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm transition">
+                </div>
+
+                <button onclick="generateQRCode()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+                  <i class="fas fa-wand-magic-sparkles"></i>
+                  Generar QR
+                </button>
+              </div>
+
+              <!-- Contenedor del QR -->
+              <div class="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 min-h-[220px]">
+                <div id="qrcode" class="mb-4"></div>
+                <p id="qrPlaceholder" class="text-xs text-slate-400 text-center">Ingresa una URL y haz clic en "Generar QR"</p>
+              </div>
+            </div>
+
+            <!-- Botón para descargar QR -->
+            <div class="mt-6">
+              <button id="downloadQrBtn" onclick="downloadQRCode()" disabled class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white font-medium text-sm rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i>
+                Descargar QR en PNG
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PESTAÑA 2: FINANZAS 50/30/20 -->
+    <div id="tab-finance" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Formulario e Ingreso -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <h2 class="text-lg font-bold flex items-center gap-2 mb-2">
+              <i class="fas fa-wallet text-emerald-500"></i>
+              Regra de Presupuesto 50/30/20
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Divide tus ingresos mensuales óptimamente para cubrir necesidades, entretenimiento y ahorro futuro.</p>
+
+            <div class="space-y-4">
+              <div>
+                <label for="monthlyIncome" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Ingreso Mensual Neto ($)</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 text-sm">$</span>
+                  <input type="number" id="monthlyIncome" placeholder="15000" class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm transition">
+                </div>
+              </div>
+
+              <button onclick="calculateBudget()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+                <i class="fas fa-calculator"></i>
+                Calcular Distribución
+              </button>
+            </div>
+
+            <!-- Resumen numérico -->
+            <div class="mt-6 space-y-3 pt-6 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                  <span class="text-xs font-semibold">Necesidades (50%)</span>
+                </div>
+                <span id="resNeeds" class="font-bold text-sm text-emerald-700 dark:text-emerald-400">$0.00</span>
+              </div>
+
+              <div class="flex items-center justify-between p-3 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/40">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+                  <span class="text-xs font-semibold">Deseos / Gustos (30%)</span>
+                </div>
+                <span id="resWants" class="font-bold text-sm text-sky-700 dark:text-sky-400">$0.00</span>
+              </div>
+
+              <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                  <span class="text-xs font-semibold">Ahorro / Deudas (20%)</span>
+                </div>
+                <span id="resSavings" class="font-bold text-sm text-amber-700 dark:text-amber-400">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfica y Proyección -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between">
+            <div>
+              <h3 class="text-base font-bold mb-4 flex items-center justify-between">
+                <span>Desglose Visual</span>
+                <span id="annualSavingsBadge" class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+                  Ahorro anual est.: $0
+                </span>
+              </h3>
+
+              <div class="relative max-w-[280px] mx-auto my-4">
+                <canvas id="budgetChart" width="280" height="280"></canvas>
+              </div>
+            </div>
+
+            <!-- Proyección a futuro -->
+            <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/50">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Meta de Ahorro Proyectada (20%)</h4>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <span class="block text-[11px] text-slate-500">3 Meses</span>
+                  <span id="savings3m" class="font-bold text-xs text-slate-700 dark:text-slate-300">$0</span>
+                </div>
+                <div>
+                  <span class="block text-[11px] text-slate-500">6 Meses</span>
+                  <span id="savings6m" class="font-bold text-xs text-slate-700 dark:text-slate-300">$0</span>
+                </div>
+                <div>
+                  <span class="block text-[11px] text-slate-500">1 Año</span>
+                  <span id="savings1y" class="font-bold text-xs text-emerald-600 dark:text-emerald-400">$0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: GASTOS DE AUTO & COMBUSTIBLE -->
+    <div id="tab-fuel" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Formulario -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+              <i class="fas fa-car text-indigo-500"></i>
+              Calculadora de Combustible
+            </h2>
+
+            <div class="space-y-4">
+              <div>
+                <label for="tripDistance" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Distancia Recorrida Diaria (Kilómetros ida y vuelta)</label>
+                <input type="number" id="tripDistance" placeholder="30" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm transition">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="fuelEfficiency" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Rendimiento (km por Litro)</label>
+                  <input type="number" id="fuelEfficiency" placeholder="12" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm transition">
+                </div>
+
+                <div>
+                  <label for="fuelPrice" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Precio Gasolina por Litro ($)</label>
+                  <input type="number" id="fuelPrice" placeholder="24" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm transition">
+                </div>
+              </div>
+
+              <div>
+                <label for="passengers" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Pasajeros para Dividir Gastos (Carpooling)</label>
+                <input type="number" id="passengers" value="1" min="1" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm transition">
+              </div>
+
+              <button onclick="calculateFuel()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2">
+                <i class="fas fa-calculator"></i>
+                Calcular Gastos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultados del Auto -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <h3 class="text-base font-bold mb-4">Estimación de Costos</h3>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+                <span class="block text-xs text-slate-500 mb-1">Costo Diario</span>
+                <span id="fuelDaily" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">$0.00</span>
+              </div>
+
+              <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+                <span class="block text-xs text-slate-500 mb-1">Costo Semanal (5 días)</span>
+                <span id="fuelWeekly" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">$0.00</span>
+              </div>
+
+              <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+                <span class="block text-xs text-slate-500 mb-1">Costo Mensual (20 días)</span>
+                <span id="fuelMonthly" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">$0.00</span>
+              </div>
+
+              <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40">
+                <span class="block text-xs text-slate-500 mb-1">Costo por Persona / Día</span>
+                <span id="fuelPerPerson" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">$0.00</span>
+              </div>
+            </div>
+
+            <!-- Consejos de Ahorro -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/50">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                <i class="fas fa-lightbulb text-amber-500"></i> Tip de Conducción Eficiente
+              </h4>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Mantener las llantas con la presión correcta de aire puede mejorar el rendimiento de combustible hasta un 3%. Evita aceleraciones bruscas en semáforos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PESTAÑA 4: WHATSAPP & IMPUESTOS -->
+    <div id="tab-wa-tax" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Generador de Link WhatsApp -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <h2 class="text-lg font-bold flex items-center gap-2 mb-2">
+              <i class="fab fa-whatsapp text-emerald-500 text-xl"></i>
+              Link Directo de WhatsApp
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Crea un enlace para que te escriban por chat sin agregar tu número a contactos.</p>
+
+            <div class="space-y-4">
+              <div>
+                <label for="waPhone" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Número de Teléfono (Con código de país)</label>
+                <input type="text" id="waPhone" placeholder="5215512345678" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm transition">
+                <span class="text-[11px] text-slate-400">Ejemplo: 52 para México, 34 para España + tu número.</span>
+              </div>
+
+              <div>
+                <label for="waMessage" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Mensaje Predeterminado (Opcional)</label>
+                <textarea id="waMessage" rows="3" placeholder="Hola, vi tu página y me gustaría obtener más información..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm transition resize-none"></textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="generateWALink()" class="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2">
+                  <i class="fas fa-link"></i> Copiar Enlace
+                </button>
+                <button onclick="openWALink()" class="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2">
+                  <i class="fas fa-paper-plane"></i> Probar Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculadora de IVA / Impuestos -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700">
+            <h2 class="text-lg font-bold flex items-center gap-2 mb-2">
+              <i class="fas fa-percent text-purple-500"></i>
+              Calculadora de IVA / Impuestos
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Calcula el impuesto a añadir o desglosa el IVA de un monto total.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="taxAmount" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Monto ($)</label>
+                  <input type="number" id="taxAmount" placeholder="1000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm transition">
+                </div>
+                <div>
+                  <label for="taxRate" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tasa % (ej. IVA 16%)</label>
+                  <input type="number" id="taxRate" value="16" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm transition">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="calculateTax('add')" class="py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs sm:text-sm rounded-xl transition">
+                  + Agregar IVA
+                </button>
+                <button onclick="calculateTax('extract')" class="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium text-xs sm:text-sm rounded-xl transition">
+                  - Desglosar IVA
+                </button>
+              </div>
+            </div>
+
+            <!-- Resumen de Impuestos -->
+            <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Subtotal Neto:</span>
+                <span id="taxSubtotal" class="font-bold">$0.00</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Monto del Impuesto:</span>
+                <span id="taxValue" class="font-bold text-purple-600 dark:text-purple-400">$0.00</span>
+              </div>
+              <div class="flex justify-between text-sm pt-2 border-t border-slate-100 dark:border-slate-700">
+                <span class="font-bold">Total Final:</span>
+                <span id="taxTotal" class="font-bold text-emerald-600 dark:text-emerald-400">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        MultiTool Hub &copy; <span id="year"></span> - Creado para ser ligero, rápido y 100% gratuito.
+      </p>
+    </div>
+  </footer>
+
+  <!-- LÓGICA JAVASCRIPT INTEGRADA -->
+  <script>
+    // Configuración Inicial e Interfaz
+    document.getElementById('year').innerText = new Date().getFullYear();
+    let budgetChartInstance = null;
+    let qrObject = null;
+
+    // Control de Modo Oscuro
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('themeIcon');
+      if (isDark) {
+        icon.className = 'fas fa-sun text-amber-400 text-lg';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        icon.className = 'fas fa-moon text-lg';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    // Cargar Tema Guardado
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      document.getElementById('themeIcon').className = 'fas fa-sun text-amber-400 text-lg';
+    }
+
+    // Sistema de Pestañas (Single Page Application)
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-950/50', 'dark:text-brand-400', 'border', 'border-brand-200', 'dark:border-brand-800/50');
+        btn.classList.add('text-slate-600', 'dark:text-slate-400');
+      });
+
+      const selectedTab = document.getElementById(tabId);
+      const selectedBtn = document.getElementById('btn-' + tabId);
+
+      if (selectedTab && selectedBtn) {
+        selectedTab.classList.add('active');
+        selectedBtn.classList.add('active', 'text-brand-600', 'bg-brand-50', 'dark:bg-brand-950/50', 'dark:text-brand-400', 'border', 'border-brand-200', 'dark:border-brand-800/50');
+      }
+    }
+
+    // Toast de Notificaciones
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = msg;
+      toastIcon.className = isSuccess ? 'fas fa-check-circle text-emerald-400' : 'fas fa-exclamation-circle text-red-400';
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // Copiar al Portapapeles
+    function copyToClipboard(text) {
+      if (!text) {
+        showToast('No hay texto para copiar', false);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('¡Copiado al portapapeles!');
+      }).catch(() => {
+        // Fallback clásico
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('¡Copiado al portapapeles!');
+      });
+    }
+
+    /* -------------------------------------------------------------
+       PESTAÑA 1: LÓGICA DE TEXTO Y QR
+    ------------------------------------------------------------- */
+    const textInput = document.getElementById('textInput');
+    textInput.addEventListener('input', () => {
+      const text = textInput.value;
+      
+      // Conteo de palabras
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('statWords').innerText = words;
+
+      // Caracteres
+      document.getElementById('statChars').innerText = text.length;
+
+      // Líneas
+      const lines = text ? text.split(/\r\n|\r|\n/).length : 0;
+      document.getElementById('statLines').innerText = lines;
+
+      // Tiempo estimado lectura (Promedio 200 palabras/minuto)
+      const readingTime = Math.ceil(words / 200);
+      document.getElementById('statReadingTime').innerText = readingTime + ' min';
+    });
+
+    function transformText(action) {
+      let text = textInput.value;
+      if (!text && action !== 'clear') return;
+
+      switch(action) {
+        case 'upper':
+          textInput.value = text.toUpperCase();
+          break;
+        case 'lower':
+          textInput.value = text.toLowerCase();
+          break;
+        case 'title':
+          textInput.value = text.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+          break;
+        case 'clean':
+          textInput.value = text.replace(/\s+/g, ' ').trim();
+          break;
+        case 'clear':
+          textInput.value = '';
+          break;
+      }
+      textInput.dispatchEvent(new Event('input'));
+    }
+
+    // Generar Código QR
+    function generateQRCode() {
+      const qrInput = document.getElementById('qrInput').value.trim();
+      const qrContainer = document.getElementById('qrcode');
+      const placeholder = document.getElementById('qrPlaceholder');
+      const downloadBtn = document.getElementById('downloadQrBtn');
+
+      qrContainer.innerHTML = '';
+
+      if (!qrInput) {
+        showToast('Ingresa un enlace o texto válido', false);
+        placeholder.style.display = 'block';
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      placeholder.style.display = 'none';
+
+      qrObject = new QRCode(qrContainer, {
+        text: qrInput,
+        width: 160,
+        height: 160,
+        colorDark : "#0f172a",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      downloadBtn.disabled = false;
+      showToast('¡Código QR generado con éxito!');
+    }
+
+    // Descargar QR como Imagen
+    function downloadQRCode() {
+      const qrContainer = document.getElementById('qrcode');
+      const img = qrContainer.querySelector('img');
+      const canvas = qrContainer.querySelector('canvas');
+
+      let imageSrc = '';
+      if (img && img.src) {
+        imageSrc = img.src;
+      } else if (canvas) {
+        imageSrc = canvas.toDataURL("image/png");
+      }
+
+      if (imageSrc) {
+        const link = document.createElement('a');
+        link.href = imageSrc;
+        link.download = 'codigo-qr.png';
+        link.click();
+      } else {
+        showToast('Error al descargar el QR', false);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       PESTAÑA 2: LÓGICA DE FINANZAS 50/30/20
+    ------------------------------------------------------------- */
+    function calculateBudget() {
+      const income = parseFloat(document.getElementById('monthlyIncome').value);
+
+      if (isNaN(income) || income <= 0) {
+        showToast('Ingresa un monto de ingreso válido', false);
+        return;
+      }
+
+      const needs = income * 0.50;
+      const wants = income * 0.30;
+      const savings = income * 0.20;
+
+      document.getElementById('resNeeds').innerText = '$' + needs.toFixed(2);
+      document.getElementById('resWants').innerText = '$' + wants.toFixed(2);
+      document.getElementById('resSavings').innerText = '$' + savings.toFixed(2);
+
+      // Metas de ahorro
+      document.getElementById('savings3m').innerText = '$' + (savings * 3).toFixed(0);
+      document.getElementById('savings6m').innerText = '$' + (savings * 6).toFixed(0);
+      document.getElementById('savings1y').innerText = '$' + (savings * 12).toFixed(0);
+      document.getElementById('annualSavingsBadge').innerText = 'Ahorro anual est.: $' + (savings * 12).toFixed(0);
+
+      renderBudgetChart(needs, wants, savings);
+    }
+
+    function renderBudgetChart(needs, wants, savings) {
+      const ctx = document.getElementById('budgetChart').getContext('2d');
+
+      if (budgetChartInstance) {
+        budgetChartInstance.destroy();
+      }
+
+      budgetChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Necesidades (50%)', 'Deseos (30%)', 'Ahorro (20%)'],
+          datasets: [{
+            data: [needs, wants, savings],
+            backgroundColor: ['#10b981', '#06b6d4', '#f59e0b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    /* -------------------------------------------------------------
+       PESTAÑA 3: LÓGICA DE COMBUSTIBLE Y AUTO
+    ------------------------------------------------------------- */
+    function calculateFuel() {
+      const dist = parseFloat(document.getElementById('tripDistance').value);
+      const eff = parseFloat(document.getElementById('fuelEfficiency').value);
+      const price = parseFloat(document.getElementById('fuelPrice').value);
+      const passengers = parseInt(document.getElementById('passengers').value) || 1;
+
+      if (isNaN(dist) || isNaN(eff) || isNaN(price) || dist <= 0 || eff <= 0 || price <= 0) {
+        showToast('Completa todos los campos de gasolina con datos válidos', false);
+        return;
+      }
+
+      const litersPerDay = dist / eff;
+      const dailyCost = litersPerDay * price;
+      const weeklyCost = dailyCost * 5;
+      const monthlyCost = dailyCost * 20;
+      const perPerson = dailyCost / passengers;
+
+      document.getElementById('fuelDaily').innerText = '$' + dailyCost.toFixed(2);
+      document.getElementById('fuelWeekly').innerText = '$' + weeklyCost.toFixed(2);
+      document.getElementById('fuelMonthly').innerText = '$' + monthlyCost.toFixed(2);
+      document.getElementById('fuelPerPerson').innerText = '$' + perPerson.toFixed(2);
+    }
+
+    /* -------------------------------------------------------------
+       PESTAÑA 4: WHATSAPP & IMPUESTOS
+    ------------------------------------------------------------- */
+    function getWALink() {
+      const phone = document.getElementById('waPhone').value.replace(/[^0-9]/g, '');
+      const msg = encodeURIComponent(document.getElementById('waMessage').value.trim());
+
+      if (!phone) {
+        showToast('Ingresa un número de teléfono válido', false);
+        return null;
+      }
+
+      return `https://wa.me/${phone}${msg ? '?text=' + msg : ''}`;
+    }
+
+    function generateWALink() {
+      const link = getWALink();
+      if (link) {
+        copyToClipboard(link);
+      }
+    }
+
+    function openWALink() {
+      const link = getWALink();
+      if (link) {
+        window.open(link, '_blank');
+      }
+    }
+
+    // Calculadora de IVA
+    function calculateTax(type) {
+      const amount = parseFloat(document.getElementById('taxAmount').value);
+      const rate = parseFloat(document.getElementById('taxRate').value);
+
+      if (isNaN(amount) || isNaN(rate) || amount <= 0) {
+        showToast('Ingresa un monto e impuesto válidos', false);
+        return;
+      }
+
+      let subtotal = 0;
+      let taxValue = 0;
+      let total = 0;
+
+      if (type === 'add') {
+        subtotal = amount;
+        taxValue = amount * (rate / 100);
+        total = subtotal + taxValue;
+      } else {
+        total = amount;
+        subtotal = amount / (1 + (rate / 100));
+        taxValue = total - subtotal;
+      }
+
+      document.getElementById('taxSubtotal').innerText = '$' + subtotal.toFixed(2);
+      document.getElementById('taxValue').innerText = '$' + taxValue.toFixed(2);
+      document.getElementById('taxTotal').innerText = '$' + total.toFixed(2);
+    }
+
+    // Inicializar primera pestaña por defecto
+    switchTab('tab-text-qr');
+  </script>
+</body>
+</html>
