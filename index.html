@@ -49,7 +49,7 @@
   <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
   <div class="absolute top-1/2 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- Contenedor Principal Directo (Sin Registro) -->
+  <!-- Contenedor Principal Directo -->
   <div id="mainApp" class="max-w-4xl mx-auto px-4 py-8 relative z-10">
     
     <!-- Cabecera -->
@@ -308,8 +308,8 @@
     const GEMINI_API_KEY = "AQ.Ab8RN6Jr4UuzFpf5N1VtxwblWryFjXaPm7QCvp4KIUN_z3dgiw";
 
     async function fetchGeminiResponse(promptText) {
-      if (!GEMINI_API_KEY || GEMINI_API_KEY === "AQ.Ab8RN6Jr4UuzFpf5N1VtxwblWryFjXaPm7QCvp4KIUN_z3dgiw") {
-        return "Para habilitar respuestas reales de IA en vivo, debes agregar tu Gemini API Key en la constante GEMINI_API_KEY del código.";
+      if (!GEMINI_API_KEY) {
+        return "Clave de API no configurada.";
       }
 
       try {
@@ -324,7 +324,7 @@
         const data = await response.json();
         return data.candidates[0].content.parts[0].text;
       } catch (err) {
-        return "Error al conectar con la API de Gemini. Revisa tu clave o tu conexión.";
+        return "Error al conectar con la API de Gemini.";
       }
     }
 
@@ -345,7 +345,7 @@
       if (!text) return;
 
       const container = document.getElementById('aiFloatingMessages');
-      container.innerHTML += `<div class="text-right"><span class="inline-block bg-indigo-600 text-white p-2 rounded-xl text-xs max-w-[85%]">${text}</span></div>`;
+      container.innerHTML += `<div class="text-right"><span class="inline-block bg-indigo-600 text-white p-2 rounded-xl text-xs max-w-[85%]" style="word-break: break-word;">${text}</span></div>`;
       input.value = "";
       container.scrollTop = container.scrollHeight;
 
@@ -356,7 +356,7 @@
       const reply = await fetchGeminiResponse(text);
       document.getElementById(loadingId).remove();
 
-      container.innerHTML += `<div class="text-left"><span class="inline-block bg-slate-800 text-slate-200 p-2 rounded-xl text-xs max-w-[85%]">${reply}</span></div>`;
+      container.innerHTML += `<div class="text-left"><span class="inline-block bg-slate-800 text-slate-200 p-2 rounded-xl text-xs max-w-[85%]" style="word-break: break-word;">${reply}</span></div>`;
       container.scrollTop = container.scrollHeight;
     }
 
@@ -366,7 +366,7 @@
       if (!text) return;
 
       const container = document.getElementById('aiTabMessages');
-      container.innerHTML += `<div class="text-right"><span class="inline-block bg-indigo-600 text-white p-2 rounded-xl text-xs max-w-[85%]">${text}</span></div>`;
+      container.innerHTML += `<div class="text-right"><span class="inline-block bg-indigo-600 text-white p-2 rounded-xl text-xs max-w-[85%]" style="word-break: break-word;">${text}</span></div>`;
       input.value = "";
       container.scrollTop = container.scrollHeight;
 
@@ -377,7 +377,7 @@
       const reply = await fetchGeminiResponse(text);
       document.getElementById(loadingId).remove();
 
-      container.innerHTML += `<div class="text-left"><span class="inline-block bg-slate-800 text-slate-200 p-2 rounded-xl text-xs max-w-[85%]">${reply}</span></div>`;
+      container.innerHTML += `<div class="text-left"><span class="inline-block bg-slate-800 text-slate-200 p-2 rounded-xl text-xs max-w-[85%]" style="word-break: break-word;">${reply}</span></div>`;
       container.scrollTop = container.scrollHeight;
     }
 
