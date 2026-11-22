@@ -1,28 +1,24 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EduSuite Hub - Herramientas de Educación y Documentos</title>
+  <title>EduSuite Workspace - Herramientas Académicas y Documentales</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'] },
-          colors: {
-            slate: { 850: '#172033', 950: '#0b1120' }
-          }
+          fontFamily: { sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'] }
         }
       }
     }
   </script>
 
   <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Librerías funcionales en el navegador -->
@@ -32,326 +28,506 @@
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b1120; color: #e2e8f0; }
-    .studio-card {
-      background-color: #111827;
-      border: 1px solid #1f2937;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: #0f172a;
     }
-    .nav-item.active {
-      background-color: #1e293b;
-      color: #38bdf8;
-      border-left: 3px solid #38bdf8;
+
+    @keyframes panelEnter {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.995);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
+
+    .panel-animate {
+      animation: panelEnter 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .formal-card {
+      background-color: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow:
+        0 10px 25px -5px rgba(15, 23, 42, 0.07),
+        0 4px 10px -2px rgba(15, 23, 42, 0.04),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .formal-card:hover {
+      box-shadow:
+        0 18px 35px -8px rgba(15, 23, 42, 0.1),
+        0 6px 14px -4px rgba(30, 58, 138, 0.06),
+        inset 0 1px 0 0 rgba(255, 255, 255, 1);
+      border-color: rgba(30, 58, 138, 0.16);
+    }
+
+    .nav-btn {
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+      color: #ffffff;
+      box-shadow: 0 6px 14px -3px rgba(29, 78, 216, 0.38);
+      transform: translateX(2px);
+    }
+
+    .input-formal {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .input-formal:focus {
+      background-color: #ffffff;
+      border-color: #1d4ed8;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14);
+    }
+
+    .btn-primary-formal {
+      background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px -2px rgba(30, 64, 175, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .btn-primary-formal:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px -3px rgba(30, 64, 175, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary-formal:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary-formal {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary-formal:hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+
     .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: #0f172a; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 999px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Barra Superior Sobria -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+  <!-- Barra Superior Formal -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/90 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center text-white shadow-md shadow-blue-900/20">
           <i class="fa-solid fa-book-open-reader text-base"></i>
         </div>
         <div>
-          <h1 class="text-base font-bold text-slate-100 tracking-tight">EduSuite Workspace</h1>
-          <p class="text-[11px] text-slate-400">Herramientas Académicas y Gestión Documental</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">EduSuite Workspace</h1>
+            <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200/70">Edición Académica</span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium">Plataforma de redacción, estudio y gestión documental</p>
         </div>
       </div>
-      <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 10 Herramientas Listas
-      </span>
+
+      <div class="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-100/90 px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+        <span class="font-semibold">Entorno Activo</span>
+      </div>
     </div>
   </header>
 
-  <!-- Contenedor Principal (Sidebar + Área de Trabajo) -->
-  <div class="max-w-6xl w-full mx-auto px-4 py-6 flex-1 flex flex-col md:flex-row gap-6">
+  <!-- Contenedor Principal -->
+  <div class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-7 flex-1 flex flex-col md:flex-row gap-6">
     
-    <!-- Menú Lateral de Herramientas (31 al 40) -->
+    <!-- Menú Lateral de Herramientas (Sin numeración) -->
     <aside class="w-full md:w-64 shrink-0">
-      <div class="studio-card rounded-2xl p-2 flex md:flex-col overflow-x-auto md:overflow-visible gap-1 scrollbar-thin">
-        <button onclick="openTool(31)" id="tab-31" class="nav-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-file-powerpoint w-4 text-center"></i> <span>31. Presentaciones PPTX</span>
+      <div class="formal-card rounded-2xl p-2.5 flex md:flex-col overflow-x-auto md:overflow-visible gap-1 scrollbar-thin md:sticky md:top-24">
+        <div class="hidden md:block px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          Herramientas Disponibles
+        </div>
+        <button onclick="openTool(31)" id="tab-31" class="nav-btn active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-left whitespace-nowrap">
+          <i class="fa-solid fa-file-powerpoint w-4 text-center opacity-90"></i> <span>Presentaciones PPTX</span>
         </button>
-        <button onclick="openTool(32)" id="tab-32" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-diagram-project w-4 text-center"></i> <span>32. Mapas Conceptuales</span>
+        <button onclick="openTool(32)" id="tab-32" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-diagram-project w-4 text-center text-blue-800/75"></i> <span>Mapas Conceptuales</span>
         </button>
-        <button onclick="openTool(33)" id="tab-33" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-code-branch w-4 text-center"></i> <span>33. Diagramas de Flujo</span>
+        <button onclick="openTool(33)" id="tab-33" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-code-branch w-4 text-center text-blue-800/75"></i> <span>Diagramas de Flujo</span>
         </button>
-        <button onclick="openTool(34)" id="tab-34" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-quote-right w-4 text-center"></i> <span>34. Bibliografías APA</span>
+        <button onclick="openTool(34)" id="tab-34" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-quote-right w-4 text-center text-blue-800/75"></i> <span>Bibliografías APA</span>
         </button>
-        <button onclick="openTool(35)" id="tab-35" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-file-pdf w-4 text-center"></i> <span>35. Conversor a PDF / Texto</span>
+        <button onclick="openTool(35)" id="tab-35" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-file-pdf w-4 text-center text-blue-800/75"></i> <span>Conversor a PDF / Texto</span>
         </button>
-        <button onclick="openTool(36)" id="tab-36" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-list-check w-4 text-center"></i> <span>36. Generador Cuestionarios</span>
+        <button onclick="openTool(36)" id="tab-36" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-list-check w-4 text-center text-blue-800/75"></i> <span>Generador Cuestionarios</span>
         </button>
-        <button onclick="openTool(37)" id="tab-37" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-clone w-4 text-center"></i> <span>37. Fichas de Estudio</span>
+        <button onclick="openTool(37)" id="tab-37" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-clone w-4 text-center text-blue-800/75"></i> <span>Fichas de Estudio</span>
         </button>
-        <button onclick="openTool(38)" id="tab-38" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-microphone w-4 text-center"></i> <span>38. Audio a Texto</span>
+        <button onclick="openTool(38)" id="tab-38" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-microphone w-4 text-center text-blue-800/75"></i> <span>Audio a Texto</span>
         </button>
-        <button onclick="openTool(39)" id="tab-39" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-language w-4 text-center"></i> <span>39. Traductor Documentos</span>
+        <button onclick="openTool(39)" id="tab-39" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-language w-4 text-center text-blue-800/75"></i> <span>Traductor Documentos</span>
         </button>
-        <button onclick="openTool(40)" id="tab-40" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-left transition whitespace-nowrap">
-          <i class="fa-solid fa-award w-4 text-center"></i> <span>40. Certificados</span>
+        <button onclick="openTool(40)" id="tab-40" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left whitespace-nowrap">
+          <i class="fa-solid fa-award w-4 text-center text-blue-800/75"></i> <span>Certificados</span>
         </button>
       </div>
     </aside>
 
     <!-- Área de Contenido Dinámico -->
-    <main class="flex-1">
+    <main class="flex-1 min-w-0">
 
-      <!-- 31. GENERADOR DE PRESENTACIONES -->
-      <section id="tool-31" class="tool-panel studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">31. Generador de Presentaciones (.pptx)</h2>
-          <p class="text-xs text-slate-400 mt-1">Estructura tus diapositivas y descarga un archivo real listo para abrir en PowerPoint o Google Slides.</p>
+      <!-- GENERADOR DE PRESENTACIONES -->
+      <section id="tool-31" class="tool-panel panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Generador de Presentaciones</h2>
+            <p class="text-xs text-slate-500 mt-1">Estructura tus diapositivas y exporta un archivo editable compatible con PowerPoint y Google Slides.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Formato .PPTX</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div class="space-y-3">
-            <input type="text" id="pptMainTitle" placeholder="Título de la Presentación" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs focus:border-sky-500 focus:outline-none">
-            <input type="text" id="slideTitle" placeholder="Título de la diapositiva" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs focus:border-sky-500 focus:outline-none">
-            <textarea id="slideBody" rows="4" placeholder="Contenido o puntos clave de esta diapositiva..." class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs focus:border-sky-500 focus:outline-none"></textarea>
-            <button onclick="addSlide()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold border border-slate-700 transition">
-              <i class="fa-solid fa-plus mr-1"></i> Agregar Diapositiva a la Lista
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="space-y-3.5">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Título general</label>
+              <input type="text" id="pptMainTitle" placeholder="Ej. Informe de Investigación" class="input-formal w-full p-2.5 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Título de la diapositiva</label>
+              <input type="text" id="slideTitle" placeholder="Ej. Introducción y Objetivos" class="input-formal w-full p-2.5 rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contenido o puntos clave</label>
+              <textarea id="slideBody" rows="4" placeholder="Escribe las ideas principales de esta diapositiva..." class="input-formal w-full p-3 rounded-xl text-xs"></textarea>
+            </div>
+            <button onclick="addSlide()" class="btn-secondary-formal w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus text-blue-800"></i> <span>Agregar Diapositiva</span>
             </button>
           </div>
 
-          <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 flex flex-col justify-between">
+          <div class="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 shadow-inner flex flex-col justify-between">
             <div>
-              <h3 class="text-xs font-semibold text-slate-300 mb-3">Diapositivas creadas (<span id="slideCount">0</span>)</h3>
-              <div id="slidesList" class="space-y-2 max-h-48 overflow-y-auto text-xs">
-                <p class="text-slate-500 italic">Aún no has agregado diapositivas.</p>
+              <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Diapositivas Preparadas</h3>
+                <span id="slideCount" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">0</span>
+              </div>
+              <div id="slidesList" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs scrollbar-thin">
+                <p class="text-slate-400 italic py-6 text-center">Aún no has agregado diapositivas a tu presentación.</p>
               </div>
             </div>
-            <button onclick="exportPPTX()" class="w-full mt-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
-              <i class="fa-solid fa-download mr-1.5"></i> Descargar Archivo PowerPoint (.pptx)
+            <button onclick="exportPPTX()" class="btn-primary-formal w-full mt-5 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-download"></i> <span>Descargar Presentación (.pptx)</span>
             </button>
           </div>
         </div>
       </section>
 
-      <!-- 32. CREADOR DE MAPAS CONCEPTUALES -->
-      <section id="tool-32" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">32. Creador de Mapas Conceptuales</h2>
-          <p class="text-xs text-slate-400 mt-1">Escribe el tema central y sus subtemas separados por comas para generar el esquema visual.</p>
+      <!-- CREADOR DE MAPAS CONCEPTUALES -->
+      <section id="tool-32" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Creador de Mapas Conceptuales</h2>
+            <p class="text-xs text-slate-500 mt-1">Define el eje central y los subtemas separados por comas para construir un esquema visual estructurado.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Esquema Visual</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <input type="text" id="mapCenter" value="Energías Renovables" placeholder="Concepto Central" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="mapBranches" value="Solar, Eólica, Hidráulica, Geotérmica" placeholder="Subtemas (separados por coma)" class="sm:col-span-2 p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-        </div>
-        <div class="flex gap-2">
-          <button onclick="renderConceptMap()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Generar Mapa</button>
-          <button onclick="downloadElement('conceptMapOutput', 'mapa-conceptual.png')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Descargar PNG</button>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concepto central</label>
+            <input type="text" id="mapCenter" value="Energías Renovables" class="input-formal w-full p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Ramas o subtemas (separados por coma)</label>
+            <input type="text" id="mapBranches" value="Solar, Eólica, Hidráulica, Geotérmica" class="input-formal w-full p-2.5 rounded-xl text-xs">
+          </div>
         </div>
 
-        <div id="conceptMapOutput" class="bg-slate-900 p-6 rounded-xl border border-slate-800 flex justify-center overflow-x-auto min-h-[200px]"></div>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="renderConceptMap()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generar Mapa</span>
+          </button>
+          <button onclick="downloadElement('conceptMapOutput', 'mapa-conceptual.png')" class="btn-secondary-formal px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-image"></i> <span>Exportar PNG</span>
+          </button>
+        </div>
+
+        <div id="conceptMapOutput" class="bg-slate-50 p-6 rounded-2xl border border-slate-200/90 shadow-inner flex justify-center overflow-x-auto min-h-[220px]"></div>
       </section>
 
-      <!-- 33. GENERADOR DE DIAGRAMAS DE FLUJO -->
-      <section id="tool-33" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">33. Generador de Diagramas de Flujo</h2>
-          <p class="text-xs text-slate-400 mt-1">Escribe cada paso del proceso en una línea nueva para conectarlos automáticamente.</p>
+      <!-- GENERADOR DE DIAGRAMAS DE FLUJO -->
+      <section id="tool-33" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Generador de Diagramas de Flujo</h2>
+            <p class="text-xs text-slate-500 mt-1">Escribe cada etapa en una línea distinta para generar automáticamente la secuencia de flujo.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Secuencia de Procesos</span>
         </div>
 
-        <textarea id="flowSteps" rows="4" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs focus:border-sky-500 focus:outline-none">Inicio del Proyecto
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Etapas del proceso (una por línea)</label>
+          <textarea id="flowSteps" rows="4" class="input-formal w-full p-3.5 rounded-xl text-xs leading-relaxed">Inicio del Proyecto
 Investigación y Análisis
 Diseño del Prototipo
 Pruebas de Calidad
 Entrega Final</textarea>
-
-        <div class="flex gap-2">
-          <button onclick="renderFlowchart()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Crear Diagrama</button>
-          <button onclick="downloadElement('flowchartOutput', 'diagrama-flujo.png')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Descargar PNG</button>
         </div>
 
-        <div id="flowchartOutput" class="bg-slate-900 p-6 rounded-xl border border-slate-800 flex justify-center overflow-x-auto min-h-[200px]"></div>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="renderFlowchart()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-sitemap"></i> <span>Crear Diagrama</span>
+          </button>
+          <button onclick="downloadElement('flowchartOutput', 'diagrama-flujo.png')" class="btn-secondary-formal px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-image"></i> <span>Exportar PNG</span>
+          </button>
+        </div>
+
+        <div id="flowchartOutput" class="bg-slate-50 p-6 rounded-2xl border border-slate-200/90 shadow-inner flex justify-center overflow-x-auto min-h-[220px]"></div>
       </section>
 
-      <!-- 34. GENERADOR DE BIBLIOGRAFÍAS Y REFERENCIAS -->
-      <section id="tool-34" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">34. Generador de Bibliografías (APA 7.ª Ed.)</h2>
-          <p class="text-xs text-slate-400 mt-1">Crea referencias académicas exactas y arma tu lista bibliográfica lista para copiar.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input type="text" id="bibAuthor" placeholder="Autor (Ej: Pérez, J. M.)" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="bibYear" placeholder="Año (Ej: 2026)" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="bibTitle" placeholder="Título del libro o artículo" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="bibSource" placeholder="Editorial o Enlace URL" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-        </div>
-        <button onclick="addBibliography()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Agregar a Bibliografía</button>
-
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-semibold text-slate-400">Lista de Referencias Generadas:</span>
-            <button onclick="copyBibList()" class="text-xs text-sky-400 hover:underline">Copiar todo</button>
+      <!-- GENERADOR DE BIBLIOGRAFÍAS Y REFERENCIAS -->
+      <section id="tool-34" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Generador de Bibliografías y Referencias</h2>
+            <p class="text-xs text-slate-500 mt-1">Compila referencias académicas con formato estándar APA 7.ª edición listas para integrar a tu trabajo.</p>
           </div>
-          <div id="bibList" class="space-y-2 text-xs text-slate-200 font-serif">
-            <p class="text-slate-500 italic font-sans">Las citas aparecerán aquí en orden...</p>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Estilo APA 7</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Autor</label>
+            <input type="text" id="bibAuthor" placeholder="Ej. Pérez, J. M." class="input-formal w-full p-2.5 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Año de publicación</label>
+            <input type="text" id="bibYear" placeholder="Ej. 2026" class="input-formal w-full p-2.5 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Título de la obra</label>
+            <input type="text" id="bibTitle" placeholder="Título del libro, artículo o informe" class="input-formal w-full p-2.5 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Editorial o fuente</label>
+            <input type="text" id="bibSource" placeholder="Editorial, revista o enlace URL" class="input-formal w-full p-2.5 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <button onclick="addBibliography()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-bookmark"></i> <span>Agregar Referencia</span>
+        </button>
+
+        <div class="bg-slate-50/90 p-5 rounded-2xl border border-slate-200/90 shadow-inner space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Referencias Compiladas</span>
+            <button onclick="copyBibList()" class="text-xs font-bold text-blue-800 hover:text-blue-600 transition flex items-center gap-1">
+              <i class="fa-regular fa-copy"></i> Copiar lista
+            </button>
+          </div>
+          <div id="bibList" class="space-y-2.5 text-xs text-slate-800 font-serif leading-relaxed">
+            <p class="text-slate-400 italic font-sans">Las referencias añadidas aparecerán aquí.</p>
           </div>
         </div>
       </section>
 
-      <!-- 35. CONVERSOR DE WORD/TEXTO A PDF Y VICEVERSA -->
-      <section id="tool-35" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">35. Conversor de Documentos a PDF y Extractor de Texto</h2>
-          <p class="text-xs text-slate-400 mt-1">Redacta o pega tu documento para exportarlo a PDF limpio, o carga un archivo de texto (.txt/.md) para editarlo.</p>
+      <!-- CONVERSOR DE DOCUMENTOS A PDF Y TEXTO -->
+      <section id="tool-35" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Conversor de Documentos a PDF y Texto</h2>
+            <p class="text-xs text-slate-500 mt-1">Redacta o carga un archivo de texto para exportarlo como PDF formal o descargarlo como texto plano.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Gestión Documental</span>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-900 p-3 rounded-xl border border-slate-800">
-          <label class="cursor-pointer text-xs text-sky-400 hover:text-sky-300 font-medium flex items-center gap-2">
-            <i class="fa-solid fa-folder-open"></i> Cargar archivo de texto (.txt)
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <label class="cursor-pointer text-xs text-blue-900 hover:text-blue-700 font-bold flex items-center gap-2 transition">
+            <i class="fa-solid fa-folder-open"></i> <span>Importar archivo (.txt, .md)</span>
             <input type="file" accept=".txt,.md,.csv" onchange="loadTextFile(event)" class="hidden">
           </label>
-          <input type="text" id="pdfDocTitle" placeholder="Nombre del archivo PDF..." class="p-1.5 px-3 rounded-lg bg-slate-800 border border-slate-700 text-xs">
+          <input type="text" id="pdfDocTitle" placeholder="Nombre del archivo de salida..." class="input-formal p-2 px-3 rounded-lg text-xs w-full sm:w-60">
         </div>
 
-        <textarea id="docEditorArea" rows="8" placeholder="Escribe o pega aquí el contenido de tu ensayo, tarea o documento..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-xs leading-relaxed focus:border-sky-500 focus:outline-none"></textarea>
+        <textarea id="docEditorArea" rows="8" placeholder="Escribe, pega o importa el contenido de tu documento aquí..." class="input-formal w-full p-4 rounded-xl text-xs leading-relaxed"></textarea>
 
-        <div class="flex gap-3">
-          <button onclick="exportToPDF()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">
-            <i class="fa-solid fa-file-pdf mr-1.5"></i> Convertir y Descargar PDF
+        <div class="flex flex-wrap gap-3">
+          <button onclick="exportToPDF()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-file-pdf"></i> <span>Exportar como PDF</span>
           </button>
-          <button onclick="downloadTxtFile()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
-            <i class="fa-solid fa-file-lines mr-1.5"></i> Exportar como Texto (.txt)
+          <button onclick="downloadTxtFile()" class="btn-secondary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-file-lines"></i> <span>Descargar Texto (.txt)</span>
           </button>
         </div>
       </section>
 
-      <!-- 36. GENERADOR DE CUESTIONARIOS DESDE DOCUMENTOS -->
-      <section id="tool-36" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">36. Generador de Cuestionarios desde Apuntes</h2>
-          <p class="text-xs text-slate-400 mt-1">Pega un párrafo de estudio y el sistema extraerá conceptos clave para crear preguntas de repaso automático.</p>
+      <!-- GENERADOR DE CUESTIONARIOS DESDE DOCUMENTOS -->
+      <section id="tool-36" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Generador de Cuestionarios desde Documentos</h2>
+            <p class="text-xs text-slate-500 mt-1">Pega un fragmento de estudio y genera preguntas de autoevaluación para repasar conceptos clave.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Autoevaluación</span>
         </div>
 
-        <textarea id="quizSourceText" rows="4" placeholder="Pega aquí un texto de historia, biología o cualquier materia (mínimo 2 oraciones)..." class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs focus:border-sky-500 focus:outline-none"></textarea>
-        <button onclick="generateQuizFromText()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Generar Preguntas de Repaso</button>
+        <textarea id="quizSourceText" rows="4" placeholder="Pega aquí un texto o apunte de estudio con oraciones completas..." class="input-formal w-full p-3.5 rounded-xl text-xs leading-relaxed"></textarea>
+        <button onclick="generateQuizFromText()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-list-check"></i> <span>Generar Cuestionario</span>
+        </button>
 
         <div id="quizContainer" class="space-y-3"></div>
       </section>
 
-      <!-- 37. CREADOR DE FICHAS DE ESTUDIO -->
-      <section id="tool-37" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">37. Creador de Fichas de Estudio (Flashcards)</h2>
-          <p class="text-xs text-slate-400 mt-1">Crea tarjetas de memoria activa. Haz clic sobre la tarjeta para revelar la respuesta.</p>
+      <!-- CREADOR DE FICHAS DE ESTUDIO -->
+      <section id="tool-37" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Creador de Fichas de Estudio</h2>
+            <p class="text-xs text-slate-500 mt-1">Elabora tarjetas de repaso y haz clic sobre ellas para alternar entre el concepto y su definición.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Repaso Activo</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input type="text" id="fcFront" placeholder="Concepto o Pregunta" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="fcBack" placeholder="Definición o Respuesta" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <input type="text" id="fcFront" placeholder="Concepto o pregunta" class="input-formal p-2.5 rounded-xl text-xs">
+          <input type="text" id="fcBack" placeholder="Definición o respuesta" class="input-formal p-2.5 rounded-xl text-xs">
         </div>
-        <button onclick="createFlashcard()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Guardar Ficha</button>
+        <button onclick="createFlashcard()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> <span>Guardar Ficha</span>
+        </button>
 
-        <div onclick="flipCard()" class="cursor-pointer bg-slate-900 border border-slate-700 hover:border-sky-500/50 rounded-2xl p-8 text-center min-h-[160px] flex flex-col items-center justify-center transition">
-          <span id="cardSideLabel" class="text-[10px] uppercase tracking-widest text-sky-400 font-semibold mb-2">FRENTE (Clic para girar)</span>
-          <p id="cardTextDisplay" class="text-base font-semibold text-slate-100">Agrega una ficha para comenzar</p>
+        <div onclick="flipCard()" class="cursor-pointer select-none bg-gradient-to-br from-slate-50 to-blue-50/50 border border-slate-200 hover:border-blue-400 rounded-2xl p-8 text-center min-h-[165px] flex flex-col items-center justify-center shadow-md transition-all duration-200 hover:-translate-y-0.5">
+          <span id="cardSideLabel" class="text-[10px] font-bold uppercase tracking-widest text-blue-800 mb-2">ANVERSO · CLIC PARA GIRAR</span>
+          <p id="cardTextDisplay" class="text-base font-bold text-slate-800">Crea una ficha para comenzar a practicar</p>
         </div>
 
         <div class="flex justify-between items-center text-xs">
-          <button onclick="changeCard(-1)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700">Anterior</button>
-          <span id="cardIndexLabel" class="text-slate-400">0 de 0</span>
-          <button onclick="changeCard(1)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700">Siguiente</button>
-        </div>
-      </section>
-
-      <!-- 38. TRANSCRIPTOR DE AUDIO A TEXTO -->
-      <section id="tool-38" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">38. Transcriptor de Audio a Texto (Dictado por Voz)</h2>
-          <p class="text-xs text-slate-400 mt-1">Dicta tus apuntes o resúmenes usando el micrófono y conviértelos en texto editable al instante.</p>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <button id="btnStartRec" onclick="toggleSpeechRecognition()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-2">
-            <i class="fa-solid fa-microphone"></i> <span>Iniciar Dictado</span>
+          <button onclick="changeCard(-1)" class="btn-secondary-formal px-4 py-2 rounded-xl font-bold">
+            <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
           </button>
-          <span id="recStatus" class="text-xs text-slate-400">Micrófono en espera</span>
+          <span id="cardIndexLabel" class="text-slate-500 font-semibold">0 de 0</span>
+          <button onclick="changeCard(1)" class="btn-secondary-formal px-4 py-2 rounded-xl font-bold">
+            Siguiente <i class="fa-solid fa-chevron-right ml-1"></i>
+          </button>
         </div>
-
-        <textarea id="transcriptArea" rows="7" placeholder="El texto dictado aparecerá aquí automáticamente..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-xs leading-relaxed"></textarea>
-        
-        <button onclick="copyTranscript()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200">
-          <i class="fa-regular fa-copy mr-1"></i> Copiar Transcripción
-        </button>
       </section>
 
-      <!-- 39. TRADUCTOR DE DOCUMENTOS -->
-      <section id="tool-39" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">39. Traductor de Documentos y Textos</h2>
-          <p class="text-xs text-slate-400 mt-1">Traduce fragmentos, artículos o tareas académicas entre múltiples idiomas.</p>
+      <!-- TRANSCRIPTOR DE AUDIO A TEXTO -->
+      <section id="tool-38" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Transcriptor de Audio a Texto</h2>
+            <p class="text-xs text-slate-500 mt-1">Dicta notas o resúmenes por voz utilizando el micrófono de tu equipo.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Dictado por Voz</span>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <select id="transFrom" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
+          <button id="btnStartRec" onclick="toggleSpeechRecognition()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-microphone"></i> <span>Iniciar Dictado</span>
+          </button>
+          <span id="recStatus" class="text-xs text-slate-500 font-medium">Micrófono en espera</span>
+        </div>
+
+        <textarea id="transcriptArea" rows="7" placeholder="El texto transcrito por voz aparecerá aquí..." class="input-formal w-full p-4 rounded-xl text-xs leading-relaxed"></textarea>
+        
+        <button onclick="copyTranscript()" class="btn-secondary-formal px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-regular fa-copy"></i> <span>Copiar Texto</span>
+        </button>
+      </section>
+
+      <!-- TRADUCTOR DE DOCUMENTOS -->
+      <section id="tool-39" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Traductor de Documentos</h2>
+            <p class="text-xs text-slate-500 mt-1">Traduce textos académicos, fragmentos o párrafos entre distintos idiomas.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Traducción</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <select id="transFrom" class="input-formal p-2.5 rounded-xl text-xs font-semibold">
             <option value="es">Español</option>
             <option value="en">Inglés</option>
             <option value="fr">Francés</option>
             <option value="pt">Portugués</option>
           </select>
-          <i class="fa-solid fa-arrow-right text-slate-500 text-xs"></i>
-          <select id="transTo" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
+          <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
+          <select id="transTo" class="input-formal p-2.5 rounded-xl text-xs font-semibold">
             <option value="en">Inglés</option>
             <option value="es">Español</option>
             <option value="fr">Francés</option>
             <option value="pt">Portugués</option>
           </select>
-          <button onclick="translateDocument()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">Traducir Texto</button>
+          <button onclick="translateDocument()" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold">
+            Traducir Texto
+          </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <textarea id="transInput" rows="6" placeholder="Escribe o pega el texto original..." class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs"></textarea>
-          <textarea id="transOutput" rows="6" readonly placeholder="La traducción aparecerá aquí..." class="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-sky-200"></textarea>
+          <textarea id="transInput" rows="6" placeholder="Escribe o pega el texto original..." class="input-formal w-full p-3.5 rounded-xl text-xs leading-relaxed"></textarea>
+          <textarea id="transOutput" rows="6" readonly placeholder="La traducción aparecerá aquí..." class="w-full p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs leading-relaxed text-slate-800 font-medium shadow-inner"></textarea>
         </div>
       </section>
 
-      <!-- 40. GENERADOR DE CERTIFICADOS PERSONALIZADOS -->
-      <section id="tool-40" class="tool-panel hidden studio-card rounded-2xl p-6 space-y-5">
-        <div class="border-b border-slate-800 pb-4">
-          <h2 class="text-lg font-bold text-slate-100">40. Generador de Certificados Personalizados</h2>
-          <p class="text-xs text-slate-400 mt-1">Personaliza los datos del diploma y descárgalo en alta resolución.</p>
+      <!-- GENERADOR DE CERTIFICADOS PERSONALIZADOS -->
+      <section id="tool-40" class="tool-panel hidden panel-animate formal-card rounded-2xl p-6 sm:p-7 space-y-6">
+        <div class="border-b border-slate-200/90 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Generador de Certificados Personalizados</h2>
+            <p class="text-xs text-slate-500 mt-1">Completa los datos institucionales y descarga el diploma con acabado formal.</p>
+          </div>
+          <span class="self-start sm:self-center text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Constancias</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input type="text" id="certReceiver" oninput="renderCert()" placeholder="Nombre del Estudiante / Participante" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="certTopic" oninput="renderCert()" placeholder="Nombre del Curso o Taller" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="certInstitution" oninput="renderCert()" placeholder="Institución / Escuela" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
-          <input type="text" id="certSigner" oninput="renderCert()" placeholder="Nombre del Director / Instructor" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <input type="text" id="certReceiver" oninput="renderCert()" placeholder="Nombre del participante" class="input-formal p-2.5 rounded-xl text-xs">
+          <input type="text" id="certTopic" oninput="renderCert()" placeholder="Nombre del curso, taller o actividad" class="input-formal p-2.5 rounded-xl text-xs">
+          <input type="text" id="certInstitution" oninput="renderCert()" placeholder="Institución o entidad emisora" class="input-formal p-2.5 rounded-xl text-xs">
+          <input type="text" id="certSigner" oninput="renderCert()" placeholder="Nombre y cargo de quien firma" class="input-formal p-2.5 rounded-xl text-xs">
         </div>
 
-        <!-- Vista Previa Certificado Sobrio -->
-        <div id="certCanvas" class="bg-slate-50 text-slate-900 p-8 rounded-xl border-8 border-double border-slate-800 text-center shadow-md">
-          <p id="outCertInst" class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">INSTITUCIÓN ACADÉMICA</p>
-          <h3 class="text-2xl font-serif font-bold text-slate-900 mb-3">CERTIFICADO DE RECONOCIMIENTO</h3>
-          <p class="text-xs text-slate-600">Se otorga la presente constancia a:</p>
-          <p id="outCertReceiver" class="text-xl font-bold text-sky-900 border-b border-slate-400 inline-block px-8 py-1.5 my-2">Nombre del Alumno</p>
-          <p class="text-xs text-slate-600 mt-1">Por su destacada participación y aprobación en:</p>
-          <p id="outCertTopic" class="text-sm font-bold text-slate-800 mt-1">Curso de Especialización</p>
-          <div class="mt-6 pt-3 border-t border-slate-300 w-48 mx-auto">
-            <p id="outCertSigner" class="text-xs font-semibold text-slate-700">Firma Autorizada</p>
+        <!-- Vista Previa de Certificado Formal -->
+        <div id="certCanvas" class="bg-white text-slate-900 p-8 sm:p-10 rounded-2xl border-[6px] border-double border-slate-800 text-center shadow-lg">
+          <p id="outCertInst" class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500 mb-2">INSTITUCIÓN ACADÉMICA</p>
+          <h3 class="text-2xl font-serif font-bold text-slate-900 tracking-wide mb-3">CERTIFICADO DE RECONOCIMIENTO</h3>
+          <p class="text-xs text-slate-600">Se extiende la presente constancia a:</p>
+          <p id="outCertReceiver" class="text-xl font-bold text-blue-950 border-b-2 border-slate-300 inline-block px-8 py-1.5 my-2">Nombre del Participante</p>
+          <p class="text-xs text-slate-600 mt-1">Por haber acreditado satisfactoriamente:</p>
+          <p id="outCertTopic" class="text-sm font-bold text-slate-800 mt-1">Programa o Actividad Académica</p>
+          <div class="mt-7 pt-3 border-t border-slate-300 w-56 mx-auto">
+            <p id="outCertSigner" class="text-xs font-semibold text-slate-700">Dirección Académica</p>
           </div>
         </div>
 
-        <button onclick="downloadElement('certCanvas', 'certificado-oficial.png')" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">
-          <i class="fa-solid fa-download mr-1.5"></i> Descargar Certificado (PNG)
+        <button onclick="downloadElement('certCanvas', 'certificado-formal.png')" class="btn-primary-formal px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-download"></i> <span>Descargar Certificado (PNG)</span>
         </button>
       </section>
 
@@ -359,73 +535,85 @@ Entrega Final</textarea>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- SCRIPTS FUNCIONALES DE LAS 10 HERRAMIENTAS                            -->
+  <!-- SCRIPTS FUNCIONALES                                                   -->
   <!-- ===================================================================== -->
   <script>
-    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
 
-    // Navegación entre herramientas 31-40
     function openTool(num) {
       document.querySelectorAll('.tool-panel').forEach(p => p.classList.add('hidden'));
-      document.querySelectorAll('.nav-item').forEach(b => {
+      document.querySelectorAll('.nav-btn').forEach(b => {
         b.classList.remove('active');
-        b.classList.add('text-slate-400');
+        b.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
       });
-      document.getElementById('tool-' + num).classList.remove('hidden');
+
+      const targetPanel = document.getElementById('tool-' + num);
+      targetPanel.classList.remove('hidden');
+      targetPanel.classList.remove('panel-animate');
+      void targetPanel.offsetWidth;
+      targetPanel.classList.add('panel-animate');
+
       const activeBtn = document.getElementById('tab-' + num);
       activeBtn.classList.add('active');
-      activeBtn.classList.remove('text-slate-400');
+      activeBtn.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
 
       if (num === 32) renderConceptMap();
       if (num === 33) renderFlowchart();
     }
 
-    // 31. PRESENTACIONES PPTX
+    // PRESENTACIONES PPTX
     let slidesData = [];
+    function renderSlidesList() {
+      document.getElementById('slideCount').innerText = slidesData.length;
+      document.getElementById('slidesList').innerHTML = slidesData.length
+        ? slidesData.map((s, i) => `
+            <div class="p-3 rounded-xl bg-white border border-slate-200 shadow-sm flex justify-between items-center transition hover:border-blue-300">
+              <div class="truncate pr-2">
+                <span class="font-bold text-blue-900">Diapositiva ${i + 1}:</span>
+                <span class="text-slate-800 font-medium">${s.title}</span>
+              </div>
+              <button onclick="removeSlide(${i})" class="text-slate-400 hover:text-rose-600 transition p-1">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `).join('')
+        : '<p class="text-slate-400 italic py-6 text-center">Aún no has agregado diapositivas a tu presentación.</p>';
+    }
+
     function addSlide() {
       const title = document.getElementById('slideTitle').value.trim();
       const body = document.getElementById('slideBody').value.trim();
-      if (!title) return alert('Escribe al menos un título para la diapositiva.');
+      if (!title) return alert('Escribe un título para la diapositiva.');
       slidesData.push({ title, body });
       document.getElementById('slideTitle').value = '';
       document.getElementById('slideBody').value = '';
-      document.getElementById('slideCount').innerText = slidesData.length;
-      document.getElementById('slidesList').innerHTML = slidesData.map((s, i) => `
-        <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex justify-between items-center">
-          <span><b>${i + 1}.</b> ${s.title}</span>
-          <button onclick="removeSlide(${i})" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      `).join('');
+      renderSlidesList();
     }
+
     function removeSlide(idx) {
       slidesData.splice(idx, 1);
-      document.getElementById('slideCount').innerText = slidesData.length;
-      document.getElementById('slidesList').innerHTML = slidesData.length ? slidesData.map((s, i) => `
-        <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex justify-between items-center">
-          <span><b>${i + 1}.</b> ${s.title}</span>
-          <button onclick="removeSlide(${i})" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-      `).join('') : '<p class="text-slate-500 italic">Aún no has agregado diapositivas.</p>';
+      renderSlidesList();
     }
+
     function exportPPTX() {
       let pptx = new PptxGenJS();
       const mainTitle = document.getElementById('pptMainTitle').value.trim() || 'Presentación Académica';
       
       let cover = pptx.addSlide();
-      cover.background = { color: '0F172A' };
-      cover.addText(mainTitle, { x: 1, y: 2.2, w: 8, h: 1.5, fontSize: 32, bold: true, color: '38BDF8', align: 'center' });
+      cover.background = { color: 'F8FAFC' };
+      cover.addText(mainTitle, { x: 1, y: 2.2, w: 8, h: 1.5, fontSize: 32, bold: true, color: '0F172A', align: 'center' });
 
       slidesData.forEach(s => {
         let slide = pptx.addSlide();
-        slide.background = { color: '1E293B' };
-        slide.addText(s.title, { x: 0.6, y: 0.5, w: 8.8, h: 0.8, fontSize: 24, bold: true, color: 'F8FAFC' });
-        slide.addText(s.body, { x: 0.6, y: 1.5, w: 8.8, h: 3.5, fontSize: 16, color: 'CBD5E1', valign: 'top' });
+        slide.background = { color: 'FFFFFF' };
+        slide.addText(s.title, { x: 0.6, y: 0.5, w: 8.8, h: 0.8, fontSize: 24, bold: true, color: '1E3A8A' });
+        slide.addText(s.body, { x: 0.6, y: 1.5, w: 8.8, h: 3.5, fontSize: 16, color: '334155', valign: 'top' });
       });
 
       pptx.writeFile({ fileName: `${mainTitle.replace(/\s+/g, '_')}.pptx` });
     }
 
-    // 32. MAPA CONCEPTUAL
+    // MAPA CONCEPTUAL
     async function renderConceptMap() {
       const center = document.getElementById('mapCenter').value.trim() || 'Tema Central';
       const branches = document.getElementById('mapBranches').value.split(',').map(b => b.trim()).filter(Boolean);
@@ -436,7 +624,7 @@ Entrega Final</textarea>
       await mermaid.run({ nodes: container.querySelectorAll('.mermaid') });
     }
 
-    // 33. DIAGRAMA DE FLUJO
+    // DIAGRAMA DE FLUJO
     async function renderFlowchart() {
       const steps = document.getElementById('flowSteps').value.split('\n').map(s => s.trim()).filter(Boolean);
       if (!steps.length) return;
@@ -453,7 +641,7 @@ Entrega Final</textarea>
       await mermaid.run({ nodes: container.querySelectorAll('.mermaid') });
     }
 
-    // 34. BIBLIOGRAFÍAS APA
+    // BIBLIOGRAFÍAS APA
     let bibEntries = [];
     function addBibliography() {
       const a = document.getElementById('bibAuthor').value.trim() || 'Autor, A.';
@@ -463,7 +651,7 @@ Entrega Final</textarea>
       bibEntries.push(`${a} (${y}). <i>${t}</i>. ${s}.`);
       document.getElementById('bibAuthor').value = '';
       document.getElementById('bibTitle').value = '';
-      document.getElementById('bibList').innerHTML = bibEntries.map(e => `<p class="pl-4 -indent-4">${e}</p>`).join('');
+      document.getElementById('bibList').innerHTML = bibEntries.map(e => `<p class="pl-5 -indent-5">${e}</p>`).join('');
     }
     function copyBibList() {
       const temp = document.createElement('div');
@@ -472,7 +660,7 @@ Entrega Final</textarea>
       alert('Bibliografía copiada al portapapeles.');
     }
 
-    // 35. CONVERSOR A PDF Y TEXTO
+    // CONVERSOR A PDF Y TEXTO
     function loadTextFile(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -499,13 +687,13 @@ Entrega Final</textarea>
       a.click();
     }
 
-    // 36. GENERADOR DE CUESTIONARIOS
+    // GENERADOR DE CUESTIONARIOS
     function generateQuizFromText() {
       const raw = document.getElementById('quizSourceText').value.trim();
       const sentences = raw.split(/[.!?]+/).map(s => s.trim()).filter(s => s.split(' ').length >= 5);
       const container = document.getElementById('quizContainer');
       if (!sentences.length) {
-        container.innerHTML = '<p class="text-xs text-amber-400">Escribe un párrafo más largo con oraciones completas para extraer preguntas.</p>';
+        container.innerHTML = '<p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-xl">Escribe un párrafo más extenso con oraciones completas para generar preguntas.</p>';
         return;
       }
       container.innerHTML = sentences.slice(0, 5).map((sentence, idx) => {
@@ -514,19 +702,19 @@ Entrega Final</textarea>
         const answer = words[targetIdx].replace(/[,;:]/g, '');
         words[targetIdx] = '________';
         return `
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
-            <p class="font-semibold text-sky-400">Pregunta ${idx + 1}: Completa el concepto clave</p>
-            <p class="text-slate-200">"${words.join(' ')}"</p>
-            <details class="text-slate-400 cursor-pointer pt-1">
-              <summary class="text-emerald-400 font-medium">Ver respuesta correcta</summary>
-              <p class="mt-1 font-bold text-white">${answer}</p>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-sm space-y-2 text-xs">
+            <p class="font-bold text-blue-900">Reactivo ${idx + 1}: Completa el término clave</p>
+            <p class="text-slate-700 leading-relaxed">"${words.join(' ')}"</p>
+            <details class="text-slate-600 cursor-pointer pt-1">
+              <summary class="text-emerald-700 font-bold">Mostrar respuesta</summary>
+              <p class="mt-1.5 font-bold text-slate-900 bg-white inline-block px-3 py-1 rounded-lg border border-slate-200">${answer}</p>
             </details>
           </div>
         `;
       }).join('');
     }
 
-    // 37. FICHAS DE ESTUDIO
+    // FICHAS DE ESTUDIO
     let deck = [];
     let currentIdx = 0;
     let isFlipped = false;
@@ -543,19 +731,19 @@ Entrega Final</textarea>
     }
     function updateCardView() {
       if (!deck.length) return;
-      document.getElementById('cardSideLabel').innerText = isFlipped ? 'REVERSO / RESPUESTA' : 'FRENTE / CONCEPTO (Clic para girar)';
+      document.getElementById('cardSideLabel').innerText = isFlipped ? 'REVERSO · RESPUESTA' : 'ANVERSO · CLIC PARA GIRAR';
       document.getElementById('cardTextDisplay').innerText = isFlipped ? deck[currentIdx].b : deck[currentIdx].f;
       document.getElementById('cardIndexLabel').innerText = `${currentIdx + 1} de ${deck.length}`;
     }
     function flipCard() { if (deck.length) { isFlipped = !isFlipped; updateCardView(); } }
     function changeCard(dir) { if (deck.length) { currentIdx = (currentIdx + dir + deck.length) % deck.length; isFlipped = false; updateCardView(); } }
 
-    // 38. TRANSCRIPTOR DE AUDIO A TEXTO
+    // TRANSCRIPTOR DE AUDIO A TEXTO
     let recognition = null;
     let isRecording = false;
     function toggleSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return alert('Tu navegador no soporta reconocimiento de voz directo. Usa Chrome o Edge.');
+      if (!SpeechRecognition) return alert('Tu navegador no soporta reconocimiento de voz directo. Prueba con Chrome o Edge.');
       if (!recognition) {
         recognition = new SpeechRecognition();
         recognition.lang = 'es-MX';
@@ -569,48 +757,48 @@ Entrega Final</textarea>
       if (!isRecording) {
         recognition.start();
         isRecording = true;
-        document.getElementById('recStatus').innerText = '🔴 Escuchando... habla ahora';
+        document.getElementById('recStatus').innerText = 'Escuchando dictado en curso...';
         document.getElementById('btnStartRec').innerHTML = '<i class="fa-solid fa-stop"></i> <span>Detener Dictado</span>';
       } else {
         recognition.stop();
         isRecording = false;
-        document.getElementById('recStatus').innerText = 'Dictado pausado';
+        document.getElementById('recStatus').innerText = 'Dictado detenido';
         document.getElementById('btnStartRec').innerHTML = '<i class="fa-solid fa-microphone"></i> <span>Iniciar Dictado</span>';
       }
     }
     function copyTranscript() {
       navigator.clipboard.writeText(document.getElementById('transcriptArea').value);
-      alert('Texto copiado.');
+      alert('Texto copiado al portapapeles.');
     }
 
-    // 39. TRADUCTOR DE DOCUMENTOS (API pública MyMemory gratuita sin key)
+    // TRADUCTOR DE DOCUMENTOS
     async function translateDocument() {
       const text = document.getElementById('transInput').value.trim();
       const from = document.getElementById('transFrom').value;
       const to = document.getElementById('transTo').value;
       if (!text) return;
       const out = document.getElementById('transOutput');
-      out.value = 'Traduciendo documento...';
+      out.value = 'Traduciendo contenido...';
       try {
         const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
         const data = await res.json();
         out.value = data.responseData.translatedText;
       } catch (e) {
-        out.value = 'Error al conectar con el servicio de traducción.';
+        out.value = 'No fue posible completar la traducción en este momento.';
       }
     }
 
-    // 40. CERTIFICADOS
+    // CERTIFICADOS
     function renderCert() {
-      document.getElementById('outCertReceiver').innerText = document.getElementById('certReceiver').value || 'Nombre del Alumno';
-      document.getElementById('outCertTopic').innerText = document.getElementById('certTopic').value || 'Curso de Especialización';
+      document.getElementById('outCertReceiver').innerText = document.getElementById('certReceiver').value || 'Nombre del Participante';
+      document.getElementById('outCertTopic').innerText = document.getElementById('certTopic').value || 'Programa o Actividad Académica';
       document.getElementById('outCertInst').innerText = document.getElementById('certInstitution').value || 'INSTITUCIÓN ACADÉMICA';
-      document.getElementById('outCertSigner').innerText = document.getElementById('certSigner').value || 'Firma Autorizada';
+      document.getElementById('outCertSigner').innerText = document.getElementById('certSigner').value || 'Dirección Académica';
     }
 
-    // UTILIDAD GENERAL DESCARGA PNG
+    // EXPORTAR PNG
     function downloadElement(id, filename) {
-      html2canvas(document.getElementById(id), { scale: 2, backgroundColor: '#0f172a' }).then(canvas => {
+      html2canvas(document.getElementById(id), { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
         const link = document.createElement('a');
         link.download = filename;
         link.href = canvas.toDataURL('image/png');
